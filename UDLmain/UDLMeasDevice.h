@@ -19,7 +19,7 @@
  */
 
 /*! \file MeasDevInterface.h
- *  \brief
+ *  \brief Interface to the UDL MeasDevice module
  *
  *  Author: Marco / Created: 16.08.2009
  */
@@ -39,7 +39,7 @@ typedef  UDLMD_STATUS (*PFN_CONNECT)( UDLMD_HANDLE MeasDevID );
 typedef  UDLMD_STATUS (*PFN_DISCONNECT)( UDLMD_HANDLE MeasDevID );
 typedef  UDLMD_STATUS (*PFN_TRIGGER)( UDLMD_HANDLE MeasDevID, uint32_t iChannel );
 typedef  UDLMD_STATUS (*PFN_GETMEASVALUE)( UDLMD_HANDLE MeasDevID, uint32_t iChannel, SMeasValue_t* pMeasVal  );
-typedef  UDLMD_STATUS (*PFN_GETDLLVER)( SDLLVersion_t *pDllVer );
+typedef  UDLMD_STATUS (*PFN_GETDLLVER)( uint32_t*  pu32APIVerion, uint32_t*  pu32DLLVerion, char* pszDLLInfo );
 typedef  UDLMD_STATUS (*PFN_GETDEVICEVERSTR)( char *pszDeviceVer, uint32_t cBufferLength );
 
 class UDLMeasDevice : public UDLDevice{
@@ -51,8 +51,6 @@ public:
 
 	virtual UDLMD_STATUS Create( UDLMD_HANDLE* pMeasDevID );
 	// TODO: Delete instanz of MeasDev m_hMeasDev before destroying dll Handle
-
-	//virtual uint32_t Delete( uint32_t MeasDevID );
 
 	virtual UDLMD_STATUS Setup(  std::string strArg );
 
@@ -70,7 +68,7 @@ public:
 	virtual UDLMD_STATUS GetDeviceVerStr( char *pszDeviceVer, uint32_t cBufferLength );
 
 
-	virtual UDLMD_STATUS GetDllVer( SDLLVersion_t *pDllVer );
+	virtual UDLMD_STATUS GetDllVer( uint32_t*  pu32APIVerion, uint32_t*  pu32DLLVerion, char* pszDLLInfo );
 protected:
 
 	bool UDLMeasDevice::LoadFunction( void** pfn, const std::string &FunctionName );

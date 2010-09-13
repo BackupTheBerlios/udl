@@ -83,7 +83,7 @@ bool UDLMeasDevice::LoadDeviceLibrary( const std::string &strLibPath ){
 		LoadFunction( (void**)&m_pfnGetDllVer, "GetDllVer" );
 		LoadFunction( (void**)&m_pfnGetDeviceVerStr, "GetDeviceVerStr" );
 
-		 Create( &m_hMeasDev );
+		Create( &m_hMeasDev );
 	}
 
 	return true;
@@ -182,11 +182,11 @@ UDLMD_STATUS UDLMeasDevice::GetMeasValue( uint32_t iChannel, SMeasValue_t* pMeas
 	return Ret;
 }
 
-UDLMD_STATUS UDLMeasDevice::GetDllVer( SDLLVersion_t *pDllVer )
+UDLMD_STATUS UDLMeasDevice::GetDllVer(uint32_t*  pu32APIVerion, uint32_t*  pu32DLLVerion, char* pszDLLInfor )
 {
 	uint32_t Ret = 0;
 	if( m_pfnGetDllVer ){
-		Ret = m_pfnGetDllVer( pDllVer );
+		Ret = m_pfnGetDllVer( pu32APIVerion, pu32DLLVerion, pszDLLInfor );
 	}
 	return Ret;
 }
