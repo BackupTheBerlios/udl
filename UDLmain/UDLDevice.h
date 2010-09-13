@@ -32,15 +32,11 @@
 class UDLDevice {
 public:
 
-	UDLDevice();
+	UDLDevice() {};
 
-	virtual ~UDLDevice();
+	virtual ~UDLDevice() {};
 
 	virtual bool LoadDeviceLibrary( const std::string &strLibPath ) = 0;
-
-	//virtual UDLMD_STATUS Create( void ) = 0;
-
-	//virtual UDLMD_STATUS Delete( uint32_t MeasDevID ) = 0;
 
 
 	virtual UDLMD_STATUS Setup( uint32_t cArgs, char *rgpszArg[] ) = 0;
@@ -57,7 +53,7 @@ public:
 	virtual UDLMD_STATUS GetDeviceVerStr( char *pszDeviceVer, uint32_t cBufferLength ) = 0;
 
 
-	virtual UDLMD_STATUS GetDllVer( SDLLVersion_t *pDllVer ) = 0;
+	virtual UDLMD_STATUS GetDllVer( uint32_t*  pu32APIVerion, uint32_t*  pu32DLLVerion, char* pszDLLInfo ) = 0;
 
 };
 
