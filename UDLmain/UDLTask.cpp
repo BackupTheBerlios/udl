@@ -88,7 +88,7 @@ void UDLTask::Work( void ){
 			if( pMeasDev ){
 				pMeasDev->Trigger( 0 );
 				pMeasDev->GetMeasValue( 0, &vecMeasVal[i] );
-				std::cout << vecMeasVal[i].dMeasValue << " - "<< vecMeasVal[i].szUnit <<  std::endl;
+				std::cout << i << " : " << vecMeasVal[i].dMeasValue << " - "<< vecMeasVal[i].szUnit <<  std::endl;
 			}
 		}
 
