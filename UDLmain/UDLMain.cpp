@@ -45,25 +45,10 @@ namespace pod = boost::program_options::detail;
 
 
 
-// TODO port to new file
-template <typename T>
-std::basic_string<T> UDLitoa(long n,unsigned w=0){
-	std::basic_stringstream<T> stream;
-	if (w){
-		stream.fill('0');
-		stream.width(w);
-	}
-	stream << n;
-	return stream.str();
-}
-
-
-
 int main( int argc, char *argv[] )
 {
 
 	//Parse arguments
-	int uSampleTime;
 	std::string strConfigFile;
 	try{
 
@@ -157,8 +142,8 @@ int main( int argc, char *argv[] )
 		std::string strMeasDevName;
 
 		strMeasDevName = "Devices.MeasDev";
-	//	strMeasDevName += "01";//UDLitoa( i, 2 );
 
+		//:TODO: pfusch.. bungling, should work with more then 4 devices
 		switch(i){
 			case 1: strMeasDevName += "01"; break;
 			case 2: strMeasDevName += "02"; break;
@@ -191,25 +176,10 @@ int main( int argc, char *argv[] )
 		}
 	}
 
-//	return EXIT_SUCCESS;
-
-
-/*
-	char* rgpszArg[] = {"COM1"};
-
-	UDLMeasDevice* pUDLDev = new UDLMeasDevice;
- //   pUDLDev->LoadDeviceLibrary( "VC820.dll" );
-
-	pUDLDev->LoadDeviceLibrary( "Test.dll" );
-	pUDLDev->Setup( 1, rgpszArg );
-
-	pUDLTask->SetDevice( pUDLDev );
-*/
-
 	// Config Action
 	std::cout << "Config Action" << std::endl;
 	UDLAction* pUDLAction = new UDLAction;
-	pUDLAction->SetSampleTime( 1000 );
+	pUDLAction->SetSampleTime( parameters["Measurement.SampleTime"] );
 	pUDLTask->SetAction( pUDLAction );
 
 	// Config DataBase
