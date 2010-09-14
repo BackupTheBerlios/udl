@@ -18,160 +18,150 @@
  * www.helektronik.de - udl@helektronik.de
  */
 
-/*! \file Test.cpp
- *  \brief
+/*! \file UdlMdTest.cpp
+ *  \brief Simple module to UdlMdTest the UDLMD_API
  *
- *  Author: Marco / Created: 12.08.2009
  */
 
 #include "Test.h"
 
-static SMeasValue_t  m_ActMeasVall = {0.0,0.0,0,""};
+static std::map< uint32_t, UdlMdTest*>  gDevices;
+static uint32_t                         gcDevices;  //!< Number of erver created Devices
 
 
-EXPORT uint32_t Create( UDLMD_HANDLE* MeasDevID ){
+UDLMD_API UDLMD_STATUS Create( UDLMD_HANDLE* phMeasDev){
+	static int cNbrOfCration;
+	cNbrOfCration++;
 
-	return Test::GetInstance()->Create();
+	UdlMdTest* pUdlMdTest = new UdlMdTest(cNbrOfCration);
+	if( pUdlMdTest ){
+		gcDevices++;
+		*phMeasDev = gcDevices;
+		gDevices[gcDevices] = pUdlMdTest;
+		return MD_NO_ERROR;
+	}
+	return MD_CANT_CREATE;
 }
 
-EXPORT uint32_t Delete( uint32_t TestID ){
+UDLMD_API UDLMD_STATUS Delete( UDLMD_HANDLE hMeasDev ){
 
-	return Test::GetInstance()->Delete( TestID );
-}
-
-EXPORT uint32_t Setup( uint32_t TestID, uint32_t cArgs, char *rgpszArg[]){
-	Test* pDev = Test::GetInstance();
+	UdlMdTest* pDev = gDevices[hMeasDev];
 	if( pDev ){
-		return pDev->Setup( TestID, cArgs, rgpszArg );
+		delete pDev;
+		gDevices.erase(hMeasDev);
+		return MD_NO_ERROR;
 	}
 	return MD_INVALIDE_HANDLE;
 }
 
-EXPORT uint32_t Connect( uint32_t id ){
-	Test* pDev = Test::GetInstance();
+UDLMD_API UDLMD_STATUS Setup( UDLMD_HANDLE hMeasDev, uint32_t cArgs, char *rgpszArg[]){
+	UdlMdTest* pDev = gDevices[hMeasDev];
 	if( pDev ){
-		return pDev->Connect( id );
+		return pDev->Setup( cArgs, rgpszArg );
 	}
 	return MD_INVALIDE_HANDLE;
 }
 
-EXPORT uint32_t Disconnect( uint32_t id ){
-	Test* pDev = Test::GetInstance();
+UDLMD_API UDLMD_STATUS Connect( UDLMD_HANDLE hMeasDev ){
+	UdlMdTest* pDev = gDevices[hMeasDev];
 	if( pDev ){
-		return pDev->Disconnect( id );
+		return pDev->Connect();
 	}
 	return MD_INVALIDE_HANDLE;
 }
 
-
-EXPORT uint32_t Trigger( uint32_t id, uint32_t iChannel ){
-	Test* pDev = Test::GetInstance();
+UDLMD_API UDLMD_STATUS Disconnect( UDLMD_HANDLE hMeasDev ){
+	UdlMdTest* pDev = gDevices[hMeasDev];
 	if( pDev ){
-		return pDev->Trigger( id, iChannel );
-	}
-	return MD_INVALIDE_HANDLE;
-}
-
-EXPORT uint32_t GetMeasValue( uint32_t id, uint32_t iChannel, SMeasValue_t* pMeasVal ){
-	Test* pDev = Test::GetInstance();
-	if( pDev ){
-		return pDev->GetMeasValue( id, iChannel, pMeasVal );
-	}
-	return MD_INVALIDE_HANDLE;
-}
-
-EXPORT uint32_t GetDeviceVerStr( uint32_t id, char *pszDeviceVer, uint32_t cBufferLength ){
-	Test* pDev = Test::GetInstance();
-	if( pDev ){
-		return pDev->GetDeviceVerStr( id, pszDeviceVer, cBufferLength );
+		return pDev->Disconnect();
 	}
 	return MD_INVALIDE_HANDLE;
 }
 
 
-EXPORT uint32_t GetDllVer( SDLLVersion_t *pDllVer ){
-	/*
-	Test* pDev = TestContainer::getInstance()->GetDevice(TestID);
+UDLMD_API UDLMD_STATUS Trigger( UDLMD_HANDLE hMeasDev, uint32_t iChannel ){
+	UdlMdTest* pDev = gDevices[hMeasDev];
 	if( pDev ){
-		return pDev->GetDllVer( pDllVer );
+		return pDev->Trigger( iChannel );
 	}
 	return MD_INVALIDE_HANDLE;
-	*/
-	return 0;
+}
+
+UDLMD_API UDLMD_STATUS GetMeasValue( UDLMD_HANDLE hMeasDev, uint32_t iChannel, SMeasValue_t* pMeasVal ){
+	UdlMdTest* pDev = gDevices[hMeasDev];
+	if( pDev ){
+		return pDev->GetMeasValue( iChannel, pMeasVal );
+	}
+	return MD_INVALIDE_HANDLE;
+}
+
+UDLMD_API UDLMD_STATUS GetDeviceVerStr( UDLMD_HANDLE hMeasDev, char *pszDeviceVer, uint32_t cBufferLength ){
+	UdlMdTest* pDev = gDevices[hMeasDev];
+	if( pDev ){
+		return pDev->GetDeviceVerStr( pszDeviceVer, cBufferLength );
+	}
+	return MD_INVALIDE_HANDLE;
 }
 
 
+UDLMD_API UDLMD_STATUS GetDllVer( uint32_t*  pu32APIVerion, uint32_t*  pu32DLLVerion, char* pszDLLInfo ){
 
-
-Test::Test()
-{
+	*pu32APIVerion = UDLMD_API_VER;
+	*pu32DLLVerion = UDLMD_TEST_DLL_VER;
+	strncpy( pszDLLInfo, "", 2 );
+	return MD_NO_ERROR;
 }
 
-Test::~Test()
-{
-}
+UDLMD_API UDLMD_STATUS GetLastMeasDevError( UDLMD_HANDLE hMeasDev, uint32_t*  pu32DevErrorNbr ){
 
-Test* Test::GetInstance( void ){
-  static Test instance;
-  return reinterpret_cast<Test*>(&instance);
-};
-
-uint32_t Test::Create( void ){
-	uint32_t TestID = 0;
-
-	return TestID;
-}
-
-uint32_t Test::Delete( uint32_t TestID )
-{
-
+	*pu32DevErrorNbr = UdlMdTest::EALLOK;
 	return MD_NO_ERROR;
 }
 
 
-uint32_t Test::Setup( uint32_t TestID, uint32_t cArgs, char *rgpszArg[] )
+UdlMdTest::UdlMdTest( int i )
+{
+	iInstance = i;
+}
+
+UdlMdTest::~UdlMdTest()
+{
+}
+
+uint32_t UdlMdTest::Setup( uint32_t cArgs, char *rgpszArg[] )
 {
 	return EALLOK;
 }
 
-uint32_t Test::Connect( uint32_t TestID )
+uint32_t UdlMdTest::Connect( void )
 {
 	return EALLOK;
 }
 
-uint32_t Test::Disconnect( uint32_t TestID )
+uint32_t UdlMdTest::Disconnect( void )
 {
 	return EALLOK;
 }
 
 
-uint32_t Test::Trigger( uint32_t TestID, uint32_t iChannel )
+uint32_t UdlMdTest::Trigger( uint32_t iChannel )
 {
 	return EALLOK;
 }
 
-uint32_t Test::GetMeasValue( uint32_t TestID, uint32_t iChannel, SMeasValue_t* pMeasVal )
+uint32_t UdlMdTest::GetMeasValue( uint32_t iChannel, SMeasValue_t* pMeasVal )
 {
-	pMeasVal->dMeasValue =  100.1;
+	pMeasVal->dMeasValue =  100.1 * iInstance;
 	strcpy( pMeasVal->szUnit, "Volt" );
 
-	return 0;
-}
-
-uint32_t Test::GetDllVer( SDLLVersion_t *pDllVer )
-{
-	pDllVer->u32MinorVerion = 0;
-	pDllVer->u32MajorVerion = 0;
-	strncpy( pDllVer->szDLLInfo, "", sizeof(pDllVer->szDLLInfo) );
-	return 0;
+	return EALLOK;
 }
 
 
-uint32_t Test::GetDeviceVerStr( uint32_t TestID, char *pszDeviceVer, uint32_t cBufferLength )
+uint32_t UdlMdTest::GetDeviceVerStr( char *pszDeviceVer, uint32_t cBufferLength )
 {
-	// Device submit no info String
-	strncpy( pszDeviceVer, "Virtual test Multimeter", cBufferLength );
-	return 0;
+	strncpy( pszDeviceVer, "UniversalDataLogger MeasDev Test-Module", cBufferLength );
+	return EALLOK;
 }
 
 

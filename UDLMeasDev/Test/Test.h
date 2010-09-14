@@ -18,102 +18,46 @@
  * www.helektronik.de - udl@helektronik.de
  */
 
-/*! \file Test.h
- *  \brief
- *
- *  Author: Marco / Created: 12.08.2009
- */
+#ifndef UDL_MD_TEST_H
+#define UDL_MD_TEST_H
 
-#ifndef Test_H_
-#define Test_H_
-
-#include "../MeasDevTypes.h"
-
-#include <string> // for types uint32_t
 #include <map>
 
+#include "../MeasDevTypes.h"
+#include "../UDLMeasDev.h"
 
-#ifdef BUILD_DLL /* DLL export */
-#define EXPORT __declspec(dllexport)
-#else            /* EXE import */
-#define EXPORT __declspec(dllimport)
-#endif
+#define UDLMD_TEST_DLL_VER 0x00000001
 
-
-extern "C" {
-
-	EXPORT uint32_t Create( void );
-
-	EXPORT uint32_t Delete( uint32_t MeasDevID );
-
-
-	EXPORT uint32_t Setup( uint32_t MeasDevID, uint32_t cArgs, char *rgpszArg[] );
-
-	EXPORT uint32_t Connect( uint32_t MeasDevID );
-
-	EXPORT uint32_t Disconnect( uint32_t MeasDevID );
-
-
-	EXPORT uint32_t Trigger( uint32_t MeasDevID, uint32_t iChannel );
-
-	EXPORT uint32_t GetMeasValue( uint32_t MeasDevID, uint32_t iChannel, SMeasValue_t* pMeasVal );
-
-	EXPORT uint32_t GetDeviceVerStr( uint32_t MeasDevID, char *pszDeviceVer, uint32_t cBufferLength );
-
-
-	EXPORT uint32_t GetDllVer( SDLLVersion_t *pDllVer );
-
-}
-
-
-
-class Test {
+class UdlMdTest {
 
 public:
 
 	enum EERRORNBR{
 		EALLOK = 0,
-		ECANTOPENPORT = 1,
-		ENOTINIT = 2,
 	};
 
-	static Test* GetInstance( void );
+	UdlMdTest( int i );
+	~UdlMdTest();
 
-	virtual ~Test();
+	virtual uint32_t Setup( uint32_t cArgs, char *rgpszArg[] );
 
-	virtual uint32_t Create( void );
+	virtual uint32_t Connect( void );
 
-	virtual uint32_t Delete( uint32_t MeasDevID );
-
-
-	virtual uint32_t Setup( uint32_t MeasDevID, uint32_t cArgs, char *rgpszArg[] );
-
-	virtual uint32_t Connect( uint32_t MeasDevID );
-
-	virtual uint32_t Disconnect( uint32_t MeasDevID );
+	virtual uint32_t Disconnect( void );
 
 
-	virtual uint32_t Trigger( uint32_t MeasDevID, uint32_t iChannel );
+	virtual uint32_t Trigger( uint32_t iChannel );
 
-	virtual uint32_t GetMeasValue( uint32_t MeasDevID, uint32_t iChannel, SMeasValue_t* pMeasVal );
+	virtual uint32_t GetMeasValue( uint32_t iChannel, SMeasValue_t* pMeasVal );
 
-	virtual uint32_t GetDeviceVerStr( uint32_t MeasDevID, char *pszDeviceVer, uint32_t cBufferLength );
-
-	virtual uint32_t GetDllVer( SDLLVersion_t *pDllVer );
+	virtual uint32_t GetDeviceVerStr( char *pszDeviceVer, uint32_t cBufferLength );
 
 protected:
 
-	EERRORNBR GetLastError( void );
-	EERRORNBR SetLastError( EERRORNBR ErrorNbr );
-
 private:
-	Test();
-	SMeasValue_t    m_TrigMeasVall;
 
-	std::map< uint32_t, Test*>    m_Devices;
-	uint32_t                       m_cDevices;  //!< Number of erver created Devices
+	int iInstance;
 
 };
 
-
-#endif /* Test_H_ */
+#endif /* UDL_MD_TEST_H */
