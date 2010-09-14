@@ -41,29 +41,23 @@ public:
 		ENOTINIT = 2,
 	};
 
-	static VC820* GetInstance( void );
+	VC820();
 
-	virtual ~VC820();
+	~VC820();
 
-	virtual UDLMD_STATUS Create( UDLMD_HANDLE* pMeasDevID );
+	virtual UDLMD_STATUS Setup( uint32_t cArgs, char *rgpszArg[] );
 
-	virtual UDLMD_STATUS Delete( UDLMD_HANDLE MeasDevID );
+	virtual UDLMD_STATUS Connect( void );
 
-
-	virtual UDLMD_STATUS Setup( UDLMD_HANDLE MeasDevID, uint32_t cArgs, char *rgpszArg[] );
-
-	virtual UDLMD_STATUS Connect( UDLMD_HANDLE MeasDevID );
-
-	virtual UDLMD_STATUS Disconnect( UDLMD_HANDLE MeasDevID );
+	virtual UDLMD_STATUS Disconnect( void );
 
 
-	virtual UDLMD_STATUS Trigger( UDLMD_HANDLE MeasDevID, uint32_t iChannel );
+	virtual UDLMD_STATUS Trigger( uint32_t iChannel );
 
-	virtual UDLMD_STATUS GetMeasValue( UDLMD_HANDLE MeasDevID, uint32_t iChannel, SMeasValue_t* pMeasVal );
+	virtual UDLMD_STATUS GetMeasValue( uint32_t iChannel, SMeasValue_t* pMeasVal );
 
-	virtual UDLMD_STATUS GetDeviceVerStr( UDLMD_HANDLE MeasDevID, char *pszDeviceVer, uint32_t cBufferLength );
+	virtual UDLMD_STATUS GetDeviceVerStr( char *pszDeviceVer, uint32_t cBufferLength );
 
-	virtual UDLMD_STATUS GetDllVer( uint32_t*  pu32APIVerion, uint32_t*  pu32DLLVerion, char* pszDLLInfo );
 
 protected:
 
@@ -73,14 +67,17 @@ protected:
 	bool ExitThread( boost::thread* m_pThread ) {return true;};
 
 private:
-	VC820();
 
-	static void Measure( void );
-	static bool DecodeMeasage( char rgchData[], double& dValue, std::string& strUnit );
+	static void ThreadProc( VC820* pThis );
+
+	void Measure( void );
+	bool DecodeMeasage( char rgchData[], double& dValue, std::string& strUnit );
 
 
 	SMeasValue_t                   m_TrigMeasVall;
+	SMeasValue_t                   m_ActMeasVall;
 
+	HANDLE                         m_hCom;
 	boost::thread*                 m_pThread;
 	boost::mutex                   m_mutex;
 

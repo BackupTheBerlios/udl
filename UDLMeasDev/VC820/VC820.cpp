@@ -23,6 +23,9 @@
  *
  */
 
+//:TODO: Make Decode Measage fail saife
+//:TODO: Use Mutex or so to acces shared vars
+
 #include "VC820.h"
 
 #include <string>
@@ -31,82 +34,87 @@
 
 #include <iostream>
 
-static HANDLE        m_hCom;
-static SMeasValue_t  m_ActMeasVall;
-
-
-static std::map< uint32_t, VC820*>    m_Devices;
-static uint32_t                       m_cDevices;  //!< Number of ever created Devices
+static std::map< uint32_t, VC820*>    gDevices;
+static uint32_t                       gcDevices;  //!< Number of ever created Devices
 
 UDLMD_API UDLMD_STATUS Create( UDLMD_HANDLE* phMeasDev){
 
-	return VC820::GetInstance()->Create( phMeasDev );
+	VC820* pVC820 = new VC820;
+	if( pVC820 ){
+		gcDevices++;
+		*phMeasDev = gcDevices;
+		gDevices[gcDevices] = pVC820;
+	}
+	return 0;
 }
 
 UDLMD_API UDLMD_STATUS Delete( UDLMD_HANDLE hMeasDev ){
 
-	return VC820::GetInstance()->Delete( hMeasDev );
+	VC820* pDev = gDevices[hMeasDev];
+	if( pDev ){
+		delete pDev;
+		gDevices.erase(gcDevices);
+		return MD_NO_ERROR;
+	}
+	return MD_INVALIDE_HANDLE;
 }
 
 UDLMD_API UDLMD_STATUS Setup( UDLMD_HANDLE hMeasDev, uint32_t cArgs, char *rgpszArg[]){
-	VC820* pDev = VC820::GetInstance();
+	VC820* pDev = gDevices[hMeasDev];
 	if( pDev ){
-		return pDev->Setup( hMeasDev, cArgs, rgpszArg );
+		return pDev->Setup( cArgs, rgpszArg );
 	}
 	return MD_INVALIDE_HANDLE;
 }
 
 UDLMD_API UDLMD_STATUS Connect( UDLMD_HANDLE hMeasDev ){
-	VC820* pDev = VC820::GetInstance();
+	VC820* pDev = gDevices[hMeasDev];
 	if( pDev ){
-		return pDev->Connect( hMeasDev );
+		return pDev->Connect();
 	}
 	return MD_INVALIDE_HANDLE;
 }
 
 UDLMD_API UDLMD_STATUS Disconnect( UDLMD_HANDLE hMeasDev ){
-	VC820* pDev = VC820::GetInstance();
+	VC820* pDev = gDevices[hMeasDev];
 	if( pDev ){
-		return pDev->Disconnect( hMeasDev );
+		return pDev->Disconnect();
 	}
 	return MD_INVALIDE_HANDLE;
 }
 
 
 UDLMD_API UDLMD_STATUS Trigger( UDLMD_HANDLE hMeasDev, uint32_t iChannel ){
-	VC820* pDev = VC820::GetInstance();
+	VC820* pDev = gDevices[hMeasDev];
 	if( pDev ){
-		return pDev->Trigger( hMeasDev, iChannel );
+		return pDev->Trigger( iChannel );
 	}
 	return MD_INVALIDE_HANDLE;
 }
 
 UDLMD_API UDLMD_STATUS GetMeasValue( UDLMD_HANDLE hMeasDev, uint32_t iChannel, SMeasValue_t* pMeasVal ){
-	VC820* pDev = VC820::GetInstance();
+	VC820* pDev = gDevices[hMeasDev];
 	if( pDev ){
-		return pDev->GetMeasValue( hMeasDev, iChannel, pMeasVal );
+		return pDev->GetMeasValue( iChannel, pMeasVal );
 	}
 	return MD_INVALIDE_HANDLE;
 }
 
 UDLMD_API UDLMD_STATUS GetDeviceVerStr( UDLMD_HANDLE hMeasDev, char *pszDeviceVer, uint32_t cBufferLength ){
-	VC820* pDev = VC820::GetInstance();
+	VC820* pDev = gDevices[hMeasDev];
 	if( pDev ){
-		return pDev->GetDeviceVerStr( hMeasDev, pszDeviceVer, cBufferLength );
+		return pDev->GetDeviceVerStr( pszDeviceVer, cBufferLength );
 	}
 	return MD_INVALIDE_HANDLE;
 }
 
 
 UDLMD_API UDLMD_STATUS GetDllVer( uint32_t*  pu32APIVerion, uint32_t*  pu32DLLVerion, char* pszDLLInfo ){
-	/*
-	VC820* pDev = VC820Container::getInstance()->GetDevice(hMeasDev);
-	if( pDev ){
-		return pDev->GetDllVer( pDllVer );
-	}
-	return MD_INVALIDE_HANDLE;
-	*/
-	return 0;
+
+	*pu32APIVerion = UDLMD_API_VER;
+	*pu32DLLVerion = UDLMD_VC820_DLL_VER;
+	strncpy( pszDLLInfo, "", 2 );
+	return MD_NO_ERROR;
 }
 
 UDLMD_API UDLMD_STATUS GetLastMeasDevError( UDLMD_HANDLE hMeasDev, uint32_t*  pu32DevErrorNbr ){
@@ -131,41 +139,7 @@ VC820::~VC820()
 
 }
 
-VC820* VC820::GetInstance( void ){
-  static VC820 instance;
-  return reinterpret_cast<VC820*>(&instance);
-};
-
-UDLMD_STATUS VC820::Create( UDLMD_HANDLE* pMeasDevID ){
-
-/*
-    uint32_t hMeasDev = 0;
-	VC820* pNewVC820 = new VC820;
-	if( pNewVC820 && m_cDevices < 10){
-		m_cDevices++;
-		hMeasDev = m_cDevices;
-		m_Devices[hMeasDev] = pNewVC820;
-	}
-	*/
-	*pMeasDevID = 0;
-	return MD_NO_ERROR;
-}
-
-UDLMD_STATUS VC820::Delete( UDLMD_HANDLE hMeasDev )
-{
-/*
-	delete m_Devices[hMeasDev];
-	m_Devices.erase( hMeasDev );
-
-	if( m_Devices.empty() ){
-		m_cDevices = 0;
-	}
-*/
-	return MD_NO_ERROR;
-}
-
-
-UDLMD_STATUS VC820::Setup( UDLMD_HANDLE hMeasDev, uint32_t cArgs, char *rgpszArg[] )
+UDLMD_STATUS VC820::Setup( uint32_t cArgs, char *rgpszArg[] )
 {
 
 	m_strSerialPort = "COM1";
@@ -173,68 +147,12 @@ UDLMD_STATUS VC820::Setup( UDLMD_HANDLE hMeasDev, uint32_t cArgs, char *rgpszArg
 	return EALLOK;
 }
 
-/*
-uint32_t VC820::Connect( void )
+
+UDLMD_STATUS VC820::Connect( void )
 {
 	EERRORNBR eRet = ECANTOPENPORT;
-
-	serial_port_base::baud_rate BAUD(2400);
-	serial_port_base::character_size CSIZE( 8 );
-	serial_port_base::flow_control FLOW( serial_port_base::flow_control::none );
-	serial_port_base::parity PARITY( serial_port_base::parity::none );
-	serial_port_base::stop_bits STOP( serial_port_base::stop_bits::one );
 
 	Disconnect();
-
-	io_service* pIo = new io_service;
-	try{
-		if( pIo )
-			m_pSerialPort = new serial_port( *pIo, m_strSerialPort );
-	}
-	catch(...){
-
-	}
-
-	if( m_pSerialPort ){
-		m_pSerialPort->set_option( BAUD );
-		m_pSerialPort->set_option( CSIZE );
-		m_pSerialPort->set_option( FLOW );
-		m_pSerialPort->set_option( PARITY );
-		m_pSerialPort->set_option( STOP );
-
-		// TODO: Set RTS and so to power device
-		DCB dcb;
-
-		dcb.fDtrControl = DTR_CONTROL_ENABLE;
-		dcb.fRtsControl = RTS_CONTROL_DISABLE;
-		dcb.fOutxCtsFlow = FALSE;
-		dcb.fOutxDsrFlow = FALSE;
-		dcb.fDsrSensitivity = FALSE;
-		dcb.fOutX = FALSE;
-		dcb.fInX = FALSE;
-
-		//SettableSerialPortOptiondcb> opt;
-
-		//opt.dcb.fDtrControl = DTR_CONTROL_ENABLE;
-
-		m_pSerialPort->set_option( )
-*
-
-		eRet = EALLOK;
-	}
-
-
-	m_pThread = new boost::thread( boost::bind( &VC820::Measure ) );
-
-	return eRet;
-}
-*/
-
-UDLMD_STATUS VC820::Connect( UDLMD_HANDLE hMeasDev )
-{
-	EERRORNBR eRet = ECANTOPENPORT;
-
-	Disconnect( hMeasDev );
 
 	m_hCom = CreateFile(	"COM1",
 							GENERIC_READ | GENERIC_WRITE,
@@ -267,12 +185,12 @@ UDLMD_STATUS VC820::Connect( UDLMD_HANDLE hMeasDev )
 	}
 
 	if( eRet == EALLOK )
-		m_pThread = new boost::thread( boost::bind( &VC820::Measure )  );
+		m_pThread = new boost::thread( boost::bind( &VC820::ThreadProc, this )  );
 
 	return eRet;
 }
 
-UDLMD_STATUS VC820::Disconnect( UDLMD_HANDLE hMeasDev )
+UDLMD_STATUS VC820::Disconnect( void )
 {
 	ExitThread( m_pThread );
 
@@ -280,41 +198,26 @@ UDLMD_STATUS VC820::Disconnect( UDLMD_HANDLE hMeasDev )
 		CloseHandle( m_hCom );
 		m_hCom = 0;
 	}
-/*
-	if( m_pSerialPort ){
-		// TODO: must i delete the io??
-		m_pSerialPort->close();
-		delete m_pSerialPort;
-		m_pSerialPort = 0;
-	}
-*/
+
 	return 0;
 }
 
 
-UDLMD_STATUS VC820::Trigger( UDLMD_HANDLE hMeasDev, uint32_t iChannel )
+UDLMD_STATUS VC820::Trigger( uint32_t iChannel )
 {
 	std::memcpy( &m_TrigMeasVall, &m_ActMeasVall, sizeof(SMeasValue_t) );
 	return 0;
 }
 
-UDLMD_STATUS VC820::GetMeasValue( UDLMD_HANDLE hMeasDev, uint32_t iChannel, SMeasValue_t* pMeasVal )
+UDLMD_STATUS VC820::GetMeasValue( uint32_t iChannel, SMeasValue_t* pMeasVal )
 {
 	std::memcpy( pMeasVal, &m_ActMeasVall, sizeof(SMeasValue_t) );
 
 	return 0;
 }
 
-UDLMD_STATUS VC820::GetDllVer( uint32_t*  pu32APIVerion, uint32_t*  pu32DLLVerion, char* pszDLLInfo )
-{
-	*pu32APIVerion = UDLMD_API_VER;
-	*pu32DLLVerion = UDLMD_VC820_DLL_VER;
-	strncpy( pszDLLInfo, "", 2 );
-	return 0;
-}
 
-
-UDLMD_STATUS VC820::GetDeviceVerStr( UDLMD_HANDLE hMeasDev, char *pszDeviceVer, uint32_t cBufferLength )
+UDLMD_STATUS VC820::GetDeviceVerStr( char *pszDeviceVer, uint32_t cBufferLength )
 {
 	// Device submit no info String
 	strncpy( pszDeviceVer, "Voltcraft VC820/VC840 Digital Multimeter", cBufferLength );
@@ -418,4 +321,15 @@ bool VC820::DecodeMeasage( char rgchData[], double& dValue, std::string& strUnit
 	// if(rgchData[11] & 0x01) strUnit = "V"; // Hold
 
 	return true;	//Messwert korrekt empfangen und verarbeitet
+}
+
+void VC820::ThreadProc( VC820* pThis ){
+
+//	void* pThis(0);
+//	VC820* pVc820 = (VC820*)pThis;
+
+	if( pThis ){
+		pThis->Measure();
+	}
+
 }
