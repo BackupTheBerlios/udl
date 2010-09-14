@@ -1,0 +1,26 @@
+
+#Config the measurement
+[Measurement]
+#Sample Time in ms
+SampleTime = 1000
+#MeasMode 'Continious' -> Log all MeasDev's 
+Mode = Continious
+#Count of measurements to take. (-1 never stop measuring)
+Count = 1000
+
+
+#Config the output chanel
+[Out]
+DataBase = File
+
+
+#Config the devices
+[Devices]
+MeasDev01 = Test.dll
+MeasDev02 = Test.dll
+
+[MeasDev01]
+Args = TestTest
+
+[MeasDev02]
+Args = TestTest
