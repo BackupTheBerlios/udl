@@ -19,27 +19,32 @@
  */
 
 
-#ifndef UDLDATABASE_H
-#define UDLDATABASE_H
+#ifndef UDLDBCSV_H
+#define UDLDBCSV_H
 
 #include "../UDLMeasDev/MeasDevTypes.h"
+#include "UDLDataBase.h"
+
 #include <string>
 #include <vector>
 
-class UdlDataBase {
-
+class UdlDbCsv : public UdlDataBase {
 public:
-	UdlDataBase();
-	virtual ~UdlDataBase();
+	UdlDbCsv();
+	virtual ~UdlDbCsv();
 
-	virtual bool CreateDb( const std::string& FullFileName ) = 0;
+	virtual bool CreateDb( const std::string& FullFileName );
 
-	virtual void SetMdNames( const std::vector<std::string>& vecMdNames ) = 0;
+	virtual void SetMdNames( const std::vector<std::string>& vecMdNames );
 
-	virtual void PushData( const std::vector<SMeasValue_t>& MeasVal, const int MeasTime ) = 0;
+	virtual void PushData( const std::vector<SMeasValue_t>& MeasVal, const int MeasTime );
 
-	virtual void Flush( void ) = 0;
+	virtual void Flush( void );
+private:
+
+	std::string mFileName;
+	std::vector<std::string> mMdNames;
 
 };
 
-#endif /* UDLDATABASE_H */
+#endif /* UDLDBCSV_H */

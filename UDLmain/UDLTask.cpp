@@ -18,11 +18,6 @@
  * www.helektronik.de - udl@helektronik.de
  */
 
-/*! \file UDLTask.cpp
- *  \brief
- *
- *  Author: Marco / Created: 22.10.2009
- */
 
 #include "windows.h"
 
@@ -35,12 +30,10 @@
 
 UDLTask::UDLTask()
 {
-	// TODO Auto-generated constructor stub
-
 }
 
-UDLTask::~UDLTask() {
-	// TODO Auto-generated destructor stub
+UDLTask::~UDLTask()
+{
 }
 
 int UDLTask::SetDevice( UDLDevice* dev ){

@@ -6,21 +6,24 @@ SampleTime = 1000
 #MeasMode 'Continious' -> Log all MeasDev's 
 Mode = Continious
 #Count of measurements to take. (-1 never stop measuring)
-Count = 1000
+SampleCount = 1000
 
 
 #Config the output chanel
 [Out]
-DataBase = File
+OutDataBase = FileCsv
+OutFileName = C:\test_01.csv
 
 
 #Config the devices
 [Devices]
-MeasDev01 = Test.dll
-MeasDev02 = Test.dll
+MeasDev_1 = Test.dll
+MeasDev_2 = Test.dll
 
-[MeasDev01]
+[MeasDev_1]
+NiceName = TestMultimeter01 
 Args = TestTest
 
-[MeasDev02]
+[MeasDev_2]
+NiceName = A Second Test Device
 Args = TestTest

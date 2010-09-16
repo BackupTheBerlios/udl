@@ -30,7 +30,6 @@
 #include <set>
 #include <sstream>
 #include <exception>
-#include <fstream>
 #include <map>
 
 #include <boost/config.hpp>
@@ -42,14 +41,16 @@ namespace pod = boost::program_options::detail;
 
 #include "UDLTask.h"
 #include "UDLMeasDevice.h"
-
+#include "UdlDbCsv.h"
+#include "UdlSettings.h"
 
 
 int main( int argc, char *argv[] )
 {
 
+	UdlSettings Settings;
+
 	//Parse arguments
-	std::string strConfigFile;
 	try{
 
 		po::options_description desc("Allowed options");
@@ -92,8 +93,8 @@ int main( int argc, char *argv[] )
 			return EXIT_SUCCESS;
 		}
 		else if (vm.count("config-file")) {
-			strConfigFile = vm["config-file"].as<std::string>();
-			std::cout << "Using Config-File :" << strConfigFile << std::endl;
+			Settings.SetConfigFile( vm["config-file"].as<std::string>() );
+			std::cout << "Using Config-File :" << Settings.ConfigFile() << std::endl;
 		}
 
 	}
@@ -102,92 +103,37 @@ int main( int argc, char *argv[] )
 	}
 
 
-	// read ini
-	std::map<std::string, std::string> parameters;
-	if( !strConfigFile.empty() ){
-		std::cout << "Reading Config-File: " << strConfigFile << std::endl;
+	Settings.ParseConfigFile();
 
-		std::ifstream config( strConfigFile.c_str() );
-		if(!config)
-		{
-			std::cerr<< "Can´t open file: "<< strConfigFile << std::endl;
-			return 1;
-		}
-
-		//parameters
-		std::set<std::string> options;
-		options.insert("*");
-
-		try{
-			for (pod::config_file_iterator i(config, options), e ; i != e; ++i)
-			{
-				std::cout << i->string_key <<" "<<i->value[0] << std::endl;
-				parameters[i->string_key] = i->value[0];
-			}
-			std::cout << parameters["Out.DataBase"] << std::endl;
-		}
-		catch( std::exception& e )
-		{
-			std::cerr << "Exception: " << e.what() << std::endl;
-		}
-
-	}
 
 	// Config Task
 	UDLTask* pUDLTask = new UDLTask;
 
 	// Load/Setup Devices
-	size_t i(1);
-	while(  i >= 1 ){
-		std::string strMeasDevName;
+	for( size_t i = 0; i < Settings.MeasDev().size(); i++ ){
 
-		strMeasDevName = "Devices.MeasDev";
+		UDLMeasDevice* pUDLDev = new UDLMeasDevice;
+		pUDLDev->LoadDeviceLibrary( Settings.MeasDev()[i].Library() );
+		pUDLDev->Setup( Settings.MeasDev()[i].Args() );
+		pUDLDev->Connect();
 
-		//:TODO: pfusch.. bungling, should work with more then 4 devices
-		switch(i){
-			case 1: strMeasDevName += "01"; break;
-			case 2: strMeasDevName += "02"; break;
-			case 3: strMeasDevName += "03"; break;
-			case 4: strMeasDevName += "04"; break;
-		}
-
-		std::cout << "Config: " << strMeasDevName << std::endl;
-
-		// Scan config data for devices
-		if( parameters.find(strMeasDevName) != parameters.end() ){
-			std::string strMeasDevLibrary;
-			std::string strMeasDevArgs;
-			uint32_t cMeasDevArgs;
-
-			strMeasDevLibrary = parameters[strMeasDevName];
-			strMeasDevArgs = parameters[strMeasDevName+".Args"];
-
-			UDLMeasDevice* pUDLDev = new UDLMeasDevice;
-			pUDLDev->LoadDeviceLibrary( strMeasDevLibrary );
-			pUDLDev->Setup( strMeasDevArgs );
-			pUDLDev->Connect();
-
-			pUDLTask->SetDevice( pUDLDev );
-
-			i++;
-		}
-		else{
-			i = 0;
-		}
+		pUDLTask->SetDevice( pUDLDev );
 	}
 
 	// Config Action
 	std::cout << "Config Action" << std::endl;
 	UDLAction* pUDLAction = new UDLAction;
-//	pUDLAction->SetSampleTime( parameters["Measurement.SampleTime"] );
-	pUDLAction->SetSampleTime( 1000 );
+	pUDLAction->SetSampleTime( Settings.SampleTimeMs() );
 	pUDLTask->SetAction( pUDLAction );
 
 	// Config DataBase
 	std::cout << "Config DataBase" << std::endl;
-	UdlDataBase* pUdlDb = new UdlDataBase;
-	//pUdlDb->SetMdNames( );
-	pUdlDb->CreateFile( "c:\\Test.out" );
+	std::cout << "Using CSV : " << Settings.OutFile() << std::endl;
+	UdlDbCsv* pUdlDb = new UdlDbCsv;
+	std::vector<std::string> nn;
+	Settings.MesDevNiceNames( nn );
+	pUdlDb->SetMdNames( nn );
+	pUdlDb->CreateDb( Settings.OutFile() );
 
 	pUDLTask->SetDataBase( pUdlDb );
 
