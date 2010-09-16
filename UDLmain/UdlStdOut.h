@@ -18,45 +18,28 @@
  * www.helektronik.de - udl@helektronik.de
  */
 
-/*! \file UDLTask.h
- *  \brief
- *
- *  Author: Marco / Created: 22.10.2009
- */
 
-#ifndef UDLTASK_H_
-#define UDLTASK_H_
+#ifndef UDLSTDOUT_H_
+#define UDLSTDOUT_H_
 
-#include <vector>
-
-#include "UDLDevice.h"
-#include "UDLMeasDevice.h"
-#include "UDLAction.h"
-#include "UDLDataBase.h"
-
-class UDLTask {
-
+class UdlStdOut {
 public:
-	UDLTask();
-	virtual ~UDLTask();
 
-	int SetDevice( UDLDevice* dev );
-	int SetAction( UDLAction* action );
-	int SetDataBase( UdlDataBase* db );
+	enum VerbosityLevel {
+		UDLOUT_VERB_ERROR = 0,
+		UDLOUT_VERB_STATUS = 1,
+		UDLOUT_VERB_INFO = 2,
+	};
 
-	int Start( void );
-	int Stop( void );
+	UdlStdOut();
+	virtual ~UdlStdOut();
 
-	void Work( void );
+	static void UdlPrint( std::string strMsg, int iLevel = 3 );
 
 protected:
 
-
 private:
-
-	std::vector<UDLDevice*>     m_Devices;
-	std::vector<UdlDataBase*>   m_DataBases;
-
+	static VerbosityLevel mVerbLevel( UDLOUT_VERB_STATUS );
 };
 
-#endif /* UDLTASK_H_ */
+#endif /* UDLSTDOUT_H_ */

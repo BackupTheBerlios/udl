@@ -18,26 +18,36 @@
  * www.helektronik.de - udl@helektronik.de
  */
 
-/*! \file UDLDataBase.h
+/*! \file UdlDataBase.h
  *  \brief 
  * 
  *  Author: Marco / Created: 22.10.2009
  */
 
-#ifndef UDLDATABASE_H_
-#define UDLDATABASE_H_
+#ifndef UDLDATABASE_H
+#define UDLDATABASE_H
 
 #include "../UDLMeasDev/MeasDevTypes.h"
 
-class UDLDataBase {
-public:
-	UDLDataBase();
-	virtual ~UDLDataBase();
+#include <string>
+#include <vector>
 
-	virtual void PushData( const std::vector<SMeasValue_t>& MeasVal );
+class UdlDataBase {
+public:
+	UdlDataBase();
+	virtual ~UdlDataBase();
+
+	virtual bool CreateFile( std::string& FullFileName );
+
+	virtual void SetMdNames( const std::vector<std::string>& vecMdNames );
+
+	virtual void PushData( const std::vector<SMeasValue_t>& MeasVal, const int MeasTime );
 
 	virtual void Flush( void );
+private:
+
+	std::string mFileName;
 
 };
 
-#endif /* UDLDATABASE_H_ */
+#endif /* UDLDATABASE_H */

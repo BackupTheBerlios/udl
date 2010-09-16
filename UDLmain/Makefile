@@ -1,6 +1,6 @@
 CXXFLAGS =	-O2 -g -Wall -fmessage-length=0
 
-SRC = UDLMain.cpp UDLTask.cpp UDLDevice.cpp UDLAction.cpp UDLDataBase.cpp UDLMeasDevice.cpp
+SRC = UDLMain.cpp UDLTask.cpp UDLAction.cpp UDLDataBase.cpp UDLMeasDevice.cpp
 OBJ = $(SRC:.cpp=.o) # replaces the .c from SRC with .o
 
 LIBS = -L d:/CppLib/boost_1_39_0/stage/lib \

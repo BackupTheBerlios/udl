@@ -18,45 +18,16 @@
  * www.helektronik.de - udl@helektronik.de
  */
 
-/*! \file UDLTask.h
- *  \brief
- *
- *  Author: Marco / Created: 22.10.2009
- */
+#include "UdlStdOut.h"
+#include <iostream>
 
-#ifndef UDLTASK_H_
-#define UDLTASK_H_
+UdlStdOut::UdlStdOut() {
+}
 
-#include <vector>
+UdlStdOut::~UdlStdOut() {
+}
 
-#include "UDLDevice.h"
-#include "UDLMeasDevice.h"
-#include "UDLAction.h"
-#include "UDLDataBase.h"
+void UdlStdOut::UdlPrint( std::string strMsg, int iLevel/* = 3 */ ){
 
-class UDLTask {
-
-public:
-	UDLTask();
-	virtual ~UDLTask();
-
-	int SetDevice( UDLDevice* dev );
-	int SetAction( UDLAction* action );
-	int SetDataBase( UdlDataBase* db );
-
-	int Start( void );
-	int Stop( void );
-
-	void Work( void );
-
-protected:
-
-
-private:
-
-	std::vector<UDLDevice*>     m_Devices;
-	std::vector<UdlDataBase*>   m_DataBases;
-
-};
-
-#endif /* UDLTASK_H_ */
+	std::cout << strMsg;
+}

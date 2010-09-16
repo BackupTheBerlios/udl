@@ -57,7 +57,7 @@ int UDLTask::SetAction( UDLAction* action ){
 	return 0;
 }
 
-int UDLTask::SetDataBase( UDLDataBase* db ){
+int UDLTask::SetDataBase( UdlDataBase* db ){
 
 	m_DataBases.push_back( db );
 	return 0;
@@ -92,7 +92,7 @@ void UDLTask::Work( void ){
 			}
 		}
 
-		m_DataBases.at(0)->PushData( vecMeasVal  );
+		m_DataBases.at(0)->PushData( vecMeasVal, 0  );
 		m_DataBases.at(0)->Flush();
 
 		timer.wait();

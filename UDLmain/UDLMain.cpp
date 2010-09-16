@@ -179,13 +179,17 @@ int main( int argc, char *argv[] )
 	// Config Action
 	std::cout << "Config Action" << std::endl;
 	UDLAction* pUDLAction = new UDLAction;
-	pUDLAction->SetSampleTime( parameters["Measurement.SampleTime"] );
+//	pUDLAction->SetSampleTime( parameters["Measurement.SampleTime"] );
+	pUDLAction->SetSampleTime( 1000 );
 	pUDLTask->SetAction( pUDLAction );
 
 	// Config DataBase
 	std::cout << "Config DataBase" << std::endl;
-	UDLDataBase* pUDLDB = new UDLDataBase;
-	pUDLTask->SetDataBase( pUDLDB );
+	UdlDataBase* pUdlDb = new UdlDataBase;
+	//pUdlDb->SetMdNames( );
+	pUdlDb->CreateFile( "c:\\Test.out" );
+
+	pUDLTask->SetDataBase( pUdlDb );
 
 	std::cout << "Start Taks" << std::endl;
 	pUDLTask->Start();

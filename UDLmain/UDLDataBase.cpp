@@ -25,22 +25,46 @@
  */
 
 #include "UDLDataBase.h"
+#include <fstream>
 
-UDLDataBase::UDLDataBase() {
-	// TODO Auto-generated constructor stub
+
+UdlDataBase::UdlDataBase()
+{
+}
+
+UdlDataBase::~UdlDataBase() {
+}
+
+bool UdlDataBase::CreateFile( std::string& FullFileName ){
+
+
+	std::ofstream OutFile( FullFileName.c_str() );
+
+	if( !OutFile ){
+		return false;
+	}
+
+	mFileName = FullFileName;
+	OutFile << "Test\n";
 
 }
 
-UDLDataBase::~UDLDataBase() {
-	// TODO Auto-generated destructor stub
-}
-
-void UDLDataBase::PushData( const std::vector<SMeasValue_t>& MeasVal ){
-
+void UdlDataBase::SetMdNames( const std::vector<std::string>& vecMdNames ){
 
 }
 
-void UDLDataBase::Flush( void ){
+void UdlDataBase::PushData( const std::vector<SMeasValue_t>& MeasVal, const int MeasTime  ){
+
+	std::ofstream OutFile( mFileName.c_str(), std::ios_base::app );
+	if( !OutFile ) return;
+
+	for( size_t i = 0; i < MeasVal.size(); i++ ){
+		OutFile << MeasVal[i].dMeasValue << ";" << MeasVal[i].szUnit << ";" ;
+	}
+	OutFile << "\n";
+}
+
+void UdlDataBase::Flush( void ){
 
 
 }
