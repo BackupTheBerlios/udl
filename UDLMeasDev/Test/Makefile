@@ -1,7 +1,7 @@
 
 SRC = Test.cpp
 OBJ = $(SRC:.cpp=.o) # replaces the .c from SRC with .o
-TARGET = Test.dll
+TARGET = ..\..\output\Test.dll
 
 LIBS = -L d:/CppLib/boost_1_39_0/stage/lib \
        d:\CppLib\boost_1_39_0\stage\lib\libboost_system-mgw34-mt-s.lib \

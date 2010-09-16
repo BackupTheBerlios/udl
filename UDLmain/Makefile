@@ -11,7 +11,7 @@ LIBS = -L d:/CppLib/boost_1_39_0/stage/lib \
        d:\CppLib\boost_1_39_0\stage\lib\libboost_date_time-mgw34-mt-s.lib \
        -lws2_32
 
-TARGET = udl.exe
+TARGET = ..\output\udl.exe
 LDFLAGS = -o 
 RM = rm
 CC = g++
