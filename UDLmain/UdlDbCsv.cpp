@@ -41,7 +41,6 @@ void UdlDbCsv::SetMdNames( const std::vector<std::string>& vecMdNames ){
 }
 
 // Then create the DB
-
 bool UdlDbCsv::CreateDb( const std::string& FullFileName ){
 
 
@@ -52,7 +51,9 @@ bool UdlDbCsv::CreateDb( const std::string& FullFileName ){
 	}
 
 	for( size_t i = 0; i < mMdNames.size(); i++ ){
-		OutFile << mMdNames[i] << ".Value," << mMdNames[i] << ".Unit,";
+		if( i ) OutFile << ",";
+		OutFile << mMdNames[i] << ".Value," << mMdNames[i] << ".Unit";
+
 	}
 	OutFile << "\n";
 
@@ -69,7 +70,8 @@ void UdlDbCsv::PushData( const std::vector<SMeasValue_t>& MeasVal, const int Mea
 	if( !OutFile ) return;
 
 	for( size_t i = 0; i < MeasVal.size(); i++ ){
-		OutFile << MeasVal[i].dMeasValue << "," << MeasVal[i].szUnit << "," ;
+		if( i ) OutFile << ",";
+		OutFile << MeasVal[i].dMeasValue << "," << MeasVal[i].szUnit;
 	}
 	OutFile << "\n";
 }

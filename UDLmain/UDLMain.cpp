@@ -18,12 +18,6 @@
  * www.helektronik.de - udl@helektronik.de
  */
 
-/*! \file main.cpp
- *  \brief
- *
- *  Author: Marco / Created: 24.06.2009
- */
-
 #include "windows.h"
 #include <iostream>
 #include <string>
@@ -45,8 +39,7 @@ namespace pod = boost::program_options::detail;
 #include "UdlSettings.h"
 
 
-int main( int argc, char *argv[] )
-{
+int main( int argc, char *argv[] ){
 
 	UdlSettings Settings;
 
@@ -57,20 +50,21 @@ int main( int argc, char *argv[] )
 		desc.add_options()
 			("help,h", "produce help message")
 			("version,v", "udl 0.0.1")
-			("warranty", "This program comes with ABSOLUTELY NO WARRANTY; for details type --warranty")
-			("redist", "This is free software, and you are welcome to redistribute it under certain conditions; type --redist' for details.")
-//			("devices,d", po::value<std::string>()->multitoken(), "devices")
-//			("sample-time,t", po::value<int>(&uSampleTime)->default_value(1000), "sample time [ms]")
 			("config-file,f", po::value<std::string>(), "config file")
 //			("output-file,o", po::value<std::string>(), "output file")
+			("warranty", "This program comes with ABSOLUTELY NO WARRANTY; for details type --warranty")
+			("redist", "This is free software, and you are welcome to redistribute it under certain conditions; type --redist' for details.")
 		;
 
 		po::variables_map vm;
 		po::store(po::parse_command_line(argc, argv, desc), vm);
 		po::notify(vm);
 
-
-		if (vm.count("help")) {
+		if( vm.empty() ){
+			std::cout << desc << "\n";
+			return EXIT_SUCCESS;
+		}
+		else if (vm.count("help")) {
 			std::cout << desc << "\n";
 			return EXIT_SUCCESS;
 		}
@@ -100,6 +94,7 @@ int main( int argc, char *argv[] )
 	}
 	catch( std::exception& e ){
 		std::cerr << e.what() << std::endl;
+		return EXIT_SUCCESS;
 	}
 
 
@@ -142,7 +137,6 @@ int main( int argc, char *argv[] )
 
 	std::cout << "Task -> work" << std::endl;
 	pUDLTask->Work();
-
 
 	return EXIT_SUCCESS;
 }
