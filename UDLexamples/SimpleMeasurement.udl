@@ -18,12 +18,12 @@ OutFileName = C:\test_01.csv
 #Config the devices
 [Devices]
 MeasDev_1 = Test.dll
-MeasDev_2 = Test.dll
+MeasDev_2 = VC820.dll
 
 [MeasDev_1]
 NiceName = TestMultimeter01 
 Args = TestTest
 
 [MeasDev_2]
-NiceName = A Second Test Device
-Args = TestTest
+NiceName = RealDevice
+Args = COM1

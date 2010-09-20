@@ -87,13 +87,14 @@ bool UdlSettings::ParseConfigFile( void ){
 		strMeasDevName = "MeasDev_";
 		strMeasDevName += std::string( itoa(i, szBuff, 10 ) ); //TODO This is not realy up to date
 
-		std::cout << "Config: " << strMeasDevName << std::endl;
-
 		// Scan config data for devices
-		if( parameters.find("Devices."+strMeasDevName) != parameters.end() ){
-			std::string Library = parameters["Devices."+strMeasDevName];
-			std::string Args = parameters[strMeasDevName+".Args"];
+		if( parameters.find(strMeasDevName+".Library") != parameters.end() ){
+			std::cout << "Config: " << strMeasDevName << std::endl;
+
+			std::string Library = parameters[strMeasDevName+".Library"];
 			std::string NiceName = parameters[strMeasDevName+".NiceName"];
+			//:TODO: Should work with all args Arg.xx
+			std::string Args = parameters[strMeasDevName+".Arg.Port"];
 
 			std::cout << "Library: " << Library << std::endl;
 			std::cout << "Args: " << Args << std::endl;

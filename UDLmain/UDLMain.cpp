@@ -105,11 +105,16 @@ int main( int argc, char *argv[] ){
 	UDLTask* pUDLTask = new UDLTask;
 
 	// Load/Setup Devices
+	std::cout << "Load/Setup Devices" << std::endl;
 	for( size_t i = 0; i < Settings.MeasDev().size(); i++ ){
+		std::vector<std::string> vecArgs;
+
+		vecArgs.push_back( "--Port ");
+		vecArgs.push_back( Settings.MeasDev()[i].Args() );
 
 		UDLMeasDevice* pUDLDev = new UDLMeasDevice;
 		pUDLDev->LoadDeviceLibrary( Settings.MeasDev()[i].Library() );
-		pUDLDev->Setup( Settings.MeasDev()[i].Args() );
+		pUDLDev->Setup( vecArgs );
 		pUDLDev->Connect();
 
 		pUDLTask->SetDevice( pUDLDev );

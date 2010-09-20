@@ -111,18 +111,7 @@ UDLMD_STATUS UDLMeasDevice::Create( UDLMD_HANDLE* pMeasDevID )
 	return Ret;
 }
 
-UDLMD_STATUS UDLMeasDevice::Setup( std::string strArg )
-{
-	std::vector<std::string> vecArgs;
-	size_t cMaxArgLength(0);
-
-	for( size_t i = 0; i < strArg.size(); ){
-		size_t ii = strArg.find( "--", i );
-		vecArgs.push_back( strArg.substr( i, ii-i) );
-		i = ii;
-		cMaxArgLength = vecArgs.rbegin()->size() > cMaxArgLength ? vecArgs.rbegin()->size() : cMaxArgLength;
-	}
-
+UDLMD_STATUS UDLMeasDevice::Setup( std::vector<std::string> vecArgs ){
 	uint32_t cArgs = (uint32_t)(vecArgs.size());
 	char* rgszArg[cArgs];
 

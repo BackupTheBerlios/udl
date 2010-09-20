@@ -52,7 +52,7 @@ public:
 	virtual UDLMD_STATUS Create( UDLMD_HANDLE* pMeasDevID );
 	// TODO: Delete instanz of MeasDev m_hMeasDev before destroying dll Handle
 
-	virtual UDLMD_STATUS Setup(  std::string strArg );
+	virtual UDLMD_STATUS Setup(  std::vector<std::string> vecArgs );
 
 	virtual UDLMD_STATUS Setup( uint32_t cArgs, char *rgpszArg[] );
 

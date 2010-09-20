@@ -39,6 +39,7 @@ public:
 		EALLOK = 0,
 		ECANTOPENPORT = 1,
 		ENOTINIT = 2,
+		EWRONGARG = 3
 	};
 
 	VC820();

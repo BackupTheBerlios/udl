@@ -132,6 +132,10 @@ UDLMD_API UDLMD_STATUS GetLastMeasDevError( UDLMD_HANDLE hMeasDev, uint32_t*  pu
 VC820::VC820()
   : m_pThread(0)
 {
+	m_TrigMeasVall.dMeasValue = 0.0;
+	m_TrigMeasVall.szUnit[0] = '\0';
+	m_ActMeasVall.dMeasValue = 0.0;
+	m_ActMeasVall.szUnit[0] = '\0';
 }
 
 VC820::~VC820()
@@ -142,9 +146,14 @@ VC820::~VC820()
 UDLMD_STATUS VC820::Setup( uint32_t cArgs, char *rgpszArg[] )
 {
 
-	m_strSerialPort = "COM1";
+	m_strSerialPort = "";
 
-	return EALLOK;
+	if( cArgs == 2 ){
+		m_strSerialPort = rgpszArg[1];
+		return EALLOK;
+	}
+
+	return EWRONGARG;
 }
 
 
@@ -154,7 +163,7 @@ UDLMD_STATUS VC820::Connect( void )
 
 	Disconnect();
 
-	m_hCom = CreateFile(	"COM1",
+	m_hCom = CreateFile(	m_strSerialPort.c_str(),
 							GENERIC_READ | GENERIC_WRITE,
 							0, // exclusive access
 							NULL, // no security
