@@ -65,7 +65,7 @@ protected:
 	EERRORNBR GetLastError( void );
 	EERRORNBR SetLastError( EERRORNBR ErrorNbr );
 
-	bool ExitThread( boost::thread* m_pThread ) {return true;};
+	bool ExitThread( void );
 
 private:
 
@@ -80,6 +80,7 @@ private:
 
 	HANDLE                         m_hCom;
 	boost::thread*                 m_pThread;
+	bool                           m_fExitThread;
 	boost::mutex                   m_mutex;
 
 	std::string                    m_strSerialPort;

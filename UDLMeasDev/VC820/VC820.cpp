@@ -24,6 +24,7 @@
  */
 
 //:TODO: Make Decode Measage fail saife
+//:TODO: Implement Error handling
 //:TODO: Use Mutex or so to acces shared vars
 
 #include "VC820.h"
@@ -130,7 +131,10 @@ UDLMD_API UDLMD_STATUS GetLastMeasDevError( UDLMD_HANDLE hMeasDev, uint32_t*  pu
 
 
 VC820::VC820()
-  : m_pThread(0)
+  : m_pThread(0),
+    m_LastError(ENOTINIT),
+	m_strSerialPort(""),
+	m_hCom(0)
 {
 	m_TrigMeasVall.dMeasValue = 0.0;
 	m_TrigMeasVall.szUnit[0] = '\0';
@@ -140,7 +144,7 @@ VC820::VC820()
 
 VC820::~VC820()
 {
-
+	Disconnect();
 }
 
 UDLMD_STATUS VC820::Setup( uint32_t cArgs, char *rgpszArg[] )
@@ -193,15 +197,17 @@ UDLMD_STATUS VC820::Connect( void )
 		if( SetCommState(m_hCom, &dcb) == TRUE ) eRet = EALLOK;
 	}
 
-	if( eRet == EALLOK )
+	if( eRet == EALLOK ){
+		m_fExitThread = false;
 		m_pThread = new boost::thread( boost::bind( &VC820::ThreadProc, this )  );
+	}
 
 	return eRet;
 }
 
 UDLMD_STATUS VC820::Disconnect( void )
 {
-	ExitThread( m_pThread );
+	ExitThread( );
 
 	if( m_hCom ){
 		CloseHandle( m_hCom );
@@ -248,26 +254,17 @@ void  VC820::Measure( void ){
 	}
 	*/
 
-	while(1){
+	int iAnz = 14;
+	unsigned long ulBytesRead;
+	double dValue;
+	std::string strUnit;
 
-		int iAnz = 14;
-		unsigned long ulBytesRead;
-		double dValue;
-		std::string strUnit;
+	::ReadFile( m_hCom, rgchMsgBuffer, iAnz, &ulBytesRead, NULL);
+	rgchMsgBuffer[iAnz] = '\0';
 
-		::ReadFile( m_hCom, rgchMsgBuffer, iAnz, &ulBytesRead, NULL);
-
-		 rgchMsgBuffer[iAnz] = '\0';
-
-		// std::cout << "VC820 -" << ulBytesRead ;
-
-		if( DecodeMeasage( rgchMsgBuffer, dValue, strUnit ) ){
-
-			//m_ActMeasVall.dCoefficient = 0.0;
-			m_ActMeasVall.dMeasValue = dValue;
-			std::strncpy( m_ActMeasVall.szUnit, strUnit.c_str(), sizeof(m_ActMeasVall.szUnit) );
-			//m_ActMeasVall.u32TimeStamp = 0;
-		}
+	if( DecodeMeasage( rgchMsgBuffer, dValue, strUnit ) ){
+		m_ActMeasVall.dMeasValue = dValue;
+		std::strncpy( m_ActMeasVall.szUnit, strUnit.c_str(), sizeof(m_ActMeasVall.szUnit) );
 	}
 }
 
@@ -334,11 +331,20 @@ bool VC820::DecodeMeasage( char rgchData[], double& dValue, std::string& strUnit
 
 void VC820::ThreadProc( VC820* pThis ){
 
-//	void* pThis(0);
-//	VC820* pVc820 = (VC820*)pThis;
-
 	if( pThis ){
-		pThis->Measure();
+		while( pThis->m_fExitThread == false )
+			pThis->Measure();
+	}
+}
+
+bool VC820::ExitThread( void ){
+
+	m_fExitThread = true;
+	if( m_pThread ){
+		m_pThread->join(); // Wait until the Thread exit
+		delete m_pThread;
+		m_pThread = 0;
 	}
 
+	return true;
 }
