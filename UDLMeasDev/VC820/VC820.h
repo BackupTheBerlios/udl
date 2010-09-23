@@ -24,12 +24,10 @@
 #include "windows.h"
 
 #include <string>
-#include "boost/thread/thread.hpp"
-#include "boost/thread/mutex.hpp"
-
 #include "../UDLMeasDev.h"
 
 #define UDLMD_VC820_DLL_VER 0x00000001
+
 
 class VC820 {
 
@@ -59,6 +57,9 @@ public:
 
 	virtual UDLMD_STATUS GetDeviceVerStr( char *pszDeviceVer, uint32_t cBufferLength );
 
+	void Measure( void );
+
+	bool                           m_fExitThread;
 
 protected:
 
@@ -69,9 +70,7 @@ protected:
 
 private:
 
-	static void ThreadProc( VC820* pThis );
 
-	void Measure( void );
 	bool DecodeMeasage( char rgchData[], double& dValue, std::string& strUnit );
 
 
@@ -79,10 +78,6 @@ private:
 	SMeasValue_t                   m_ActMeasVall;
 
 	HANDLE                         m_hCom;
-	boost::thread*                 m_pThread;
-	bool                           m_fExitThread;
-	boost::mutex                   m_mutex;
-
 	std::string                    m_strSerialPort;
 	EERRORNBR                      m_LastError;
 

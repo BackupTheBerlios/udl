@@ -71,7 +71,7 @@ public:
 	virtual UDLMD_STATUS GetDllVer( uint32_t*  pu32APIVerion, uint32_t*  pu32DLLVerion, char* pszDLLInfo );
 protected:
 
-	bool UDLMeasDevice::LoadFunction( void** pfn, const std::string &FunctionName );
+	bool LoadFunction( void** pfn, const std::string &FunctionName );
 
 private:
 

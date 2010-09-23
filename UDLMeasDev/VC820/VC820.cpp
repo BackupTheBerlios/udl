@@ -30,8 +30,10 @@
 #include "VC820.h"
 
 #include <string>
+#include <cstring>
+#include <map>
 #include "windows.h"
-#include "boost/bind.hpp"
+#include "process.h"
 
 #include <iostream>
 
@@ -129,10 +131,18 @@ UDLMD_API UDLMD_STATUS GetLastMeasDevError( UDLMD_HANDLE hMeasDev, uint32_t*  pu
 	return 0;
 }
 
+void ThreadProc( void* pParam ){
+	VC820* pT = (VC820*)pParam;
+	if( pT ){
+		while( pT->m_fExitThread == false )
+			pT->Measure();
+	}
+	_endthread();
+}
+
 
 VC820::VC820()
-  : m_pThread(0),
-    m_LastError(ENOTINIT),
+  : m_LastError(ENOTINIT),
 	m_strSerialPort(""),
 	m_hCom(0)
 {
@@ -199,7 +209,7 @@ UDLMD_STATUS VC820::Connect( void )
 
 	if( eRet == EALLOK ){
 		m_fExitThread = false;
-		m_pThread = new boost::thread( boost::bind( &VC820::ThreadProc, this )  );
+		_beginthread( ThreadProc, 0, this );
 	}
 
 	return eRet;
@@ -329,22 +339,10 @@ bool VC820::DecodeMeasage( char rgchData[], double& dValue, std::string& strUnit
 	return true;	//Messwert korrekt empfangen und verarbeitet
 }
 
-void VC820::ThreadProc( VC820* pThis ){
-
-	if( pThis ){
-		while( pThis->m_fExitThread == false )
-			pThis->Measure();
-	}
-}
 
 bool VC820::ExitThread( void ){
 
 	m_fExitThread = true;
-	if( m_pThread ){
-		m_pThread->join(); // Wait until the Thread exit
-		delete m_pThread;
-		m_pThread = 0;
-	}
 
 	return true;
 }

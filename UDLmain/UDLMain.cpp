@@ -49,7 +49,7 @@ int main( int argc, char *argv[] ){
 		po::options_description desc("Allowed options");
 		desc.add_options()
 			("help,h", "produce help message")
-			("version,v", "udl 0.0.1")
+			("version,v", "udl 0.0.2")
 			("config-file,f", po::value<std::string>(), "config file")
 //			("output-file,o", po::value<std::string>(), "output file")
 			("warranty", "This program comes with ABSOLUTELY NO WARRANTY; for details type --warranty")
@@ -70,7 +70,7 @@ int main( int argc, char *argv[] ){
 		}
 		else if (vm.count("version")) {
 
-			std::cout << "udl 0.0.1" << std::endl;
+			std::cout << "udl 0.0.2" << std::endl;
 			std::cout << "Copyright (C) 2010  Marco Hartung" << std::endl;
 			std::cout << "This program comes with ABSOLUTELY NO WARRANTY; for details type 'udl --warranty'." << std::endl;
 			std::cout << "This is free software, and you are welcome to redistribute it" << std::endl;

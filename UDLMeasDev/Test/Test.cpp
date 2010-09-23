@@ -24,6 +24,9 @@
  */
 
 #include "Test.h"
+#include <map>
+#include <cstring>
+
 
 static std::map< uint32_t, UdlMdTest*>  gDevices;
 static uint32_t                         gcDevices;  //!< Number of erver created Devices

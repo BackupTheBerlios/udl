@@ -3,12 +3,7 @@ SRC = VC820.cpp
 OBJ = $(SRC:.cpp=.o) # replaces the .c from SRC with .o
 TARGET = ..\..\output\VC820.dll
 
-LIBS = -L d:/CppLib/boost_1_39_0/stage/lib \
-       d:\CppLib\boost_1_39_0\stage\lib\libboost_system-mgw34-mt-s.lib \
-       d:\CppLib\boost_1_39_0\stage\lib\libboost_thread-mgw34-mt-s.lib \
-       d:\CppLib\boost_1_39_0\stage\lib\libboost_serialization-mgw34-mt-s.lib \
-       d:\CppLib\boost_1_39_0\stage\lib\libboost_date_time-mgw34-mt-s.lib \
-       -lws2_32
+LIBS = -L -lws2_32
 
 CC = g++
 #CFLAGS = -c -BUILD_DLL -I d:\CppLib\boost_1_39_0\
