@@ -28,6 +28,7 @@
 #define UDLDEVICE_H_
 
 #include "../UDLMeasDev/MeasDevTypes.h"
+#include <string>
 
 class UDLDevice {
 public:
