@@ -28,6 +28,7 @@
 #define UDLMEASDEVICE_H_
 
 #include <string>
+#include <vector>
 #include "windows.h"
 #include "../UDLMeasDev/MeasDevTypes.h"
 
