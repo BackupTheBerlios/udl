@@ -26,7 +26,7 @@
 #ifndef MEASDEVTYPES_H_
 #define MEASDEVTYPES_H_
 
-#include <vector>  // for the uint32_t typedefs
+#include <stdint.h>
 
 typedef unsigned long	UDLMD_HANDLE;
 typedef unsigned long	UDLMD_STATUS;
