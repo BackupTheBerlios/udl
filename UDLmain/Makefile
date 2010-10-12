@@ -1,14 +1,16 @@
 CXXFLAGS =	-O2 -g -Wall -fmessage-length=0
 
-SRC = UDLMain.cpp UDLTask.cpp UDLAction.cpp UDLDataBase.cpp UdlDbCsv.cpp UDLMeasDevice.cpp UdlSettings.cpp
+SRC = UDLMain.cpp UDLTask.cpp UDLAction.cpp UDLDataBase.cpp UdlDbCsv.cpp \
+      UDLMeasDevice.cpp UdlSettings.cpp UdlStdOut.cpp
+      
 OBJ = $(SRC:.cpp=.o) # replaces the .c from SRC with .o
 
 LIBS = -L d:/CppLib/boost_1_39_0/stage/lib \
-       d:\CppLib\boost_1_39_0\stage\lib\libboost_program_options-mgw34-mt-s.lib \
-       d:\CppLib\boost_1_39_0\stage\lib\libboost_system-mgw34-mt-s.lib \
-       d:\CppLib\boost_1_39_0\stage\lib\libboost_thread-mgw34-mt-s.lib \
-       d:\CppLib\boost_1_39_0\stage\lib\libboost_serialization-mgw34-mt-s.lib \
-       d:\CppLib\boost_1_39_0\stage\lib\libboost_date_time-mgw34-mt-s.lib \
+       d:\CppLib\boost_1_39_0\stage\lib\libboost_program_options-mgw45-mt.lib \
+       d:\CppLib\boost_1_39_0\stage\lib\libboost_system-mgw45-mt.lib \
+       d:\CppLib\boost_1_39_0\stage\lib\libboost_thread-mgw45-mt.lib \
+       d:\CppLib\boost_1_39_0\stage\lib\libboost_serialization-mgw45-mt.lib \
+       d:\CppLib\boost_1_39_0\stage\lib\libboost_date_time-mgw45-mt.lib \
        -lws2_32
 
 TARGET = ..\output\udl.exe
