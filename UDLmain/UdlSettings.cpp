@@ -20,7 +20,6 @@
 
 #include "UdlSettings.h"
 
-#include <iostream>
 #include <fstream>
 #include <stdlib.h>
 #include <map>
@@ -30,6 +29,8 @@
 #include <boost/program_options/parsers.hpp>
 #include "boost/program_options.hpp"
 namespace pod = boost::program_options::detail;
+
+#include "UdlStdOut.h"
 
 UdlSettings::UdlSettings()
 {
@@ -43,12 +44,12 @@ bool UdlSettings::ParseConfigFile( void ){
 
 	std::map<std::string, std::string> parameters;
 	if( !mConfigFile.empty() ){
-		std::cout << "Reading Config-File: " << mConfigFile << std::endl;
+		UdlOut::Msg << "Reading Config-File: " << mConfigFile << UdlOut::EndLine;
 
 		std::ifstream config( mConfigFile.c_str() );
 		if(!config)
 		{
-			std::cerr<< "Can´t open file: "<< mConfigFile << std::endl;
+			UdlOut::Error << "Can´t open file: "<< mConfigFile << UdlOut::EndLine;
 			return false;
 		}
 
@@ -59,13 +60,13 @@ bool UdlSettings::ParseConfigFile( void ){
 		try{
 			for (pod::config_file_iterator i(config, options), e ; i != e; ++i)
 			{
-				std::cout << i->string_key <<" "<<i->value[0] << std::endl;
+				UdlOut::Info << i->string_key <<" "<<i->value[0] << std::endl;
 				parameters[i->string_key] = i->value[0];
 			}
 		}
 		catch( std::exception& e )
 		{
-			std::cerr << "Exception: " << e.what() << std::endl;
+			UdlOut::Error << "Exception: " << e.what() << std::endl;
 		}
 
 	}
@@ -89,16 +90,16 @@ bool UdlSettings::ParseConfigFile( void ){
 
 		// Scan config data for devices
 		if( parameters.find(strMeasDevName+".Library") != parameters.end() ){
-			std::cout << "Config: " << strMeasDevName << std::endl;
+			UdlOut::Info << "Config: " << strMeasDevName << std::endl;
 
 			std::string Library = parameters[strMeasDevName+".Library"];
 			std::string NiceName = parameters[strMeasDevName+".NiceName"];
 			//:TODO: Should work with all args Arg.xx
 			std::string Args = parameters[strMeasDevName+".Arg.Port"];
 
-			std::cout << "Library: " << Library << std::endl;
-			std::cout << "Args: " << Args << std::endl;
-			std::cout << "NiceName: " << NiceName << std::endl;
+			UdlOut::Info << "Library: " << Library << UdlOut::EndLine;
+			UdlOut::Info << "Args: " << Args << UdlOut::EndLine;
+			UdlOut::Info << "NiceName: " << NiceName << UdlOut::EndLine;
 
 			mMd.push_back( UdlMdSettings( NiceName, Library, Args ) );
 

@@ -19,15 +19,40 @@
  */
 
 #include "UdlStdOut.h"
-#include <iostream>
 
-UdlStdOut::UdlStdOut() {
-}
+const char UdlOut::EndLine( '\n' );
 
-UdlStdOut::~UdlStdOut() {
-}
+std::ostream UdlOut::Error( std::cerr.rdbuf() );
+std::ostream UdlOut::Info( std::cout.rdbuf() );
+std::ostream UdlOut::Msg( std::cout.rdbuf() );
 
-void UdlStdOut::UdlPrint( std::string strMsg, int iLevel/* = 3 */ ){
 
-	std::cout << strMsg;
+bool UdlOut::SetVerbosity( int vl ){
+	bool fRet = true;
+
+	switch( vl ){
+	case 0 :
+		Error.rdbuf( 0 );
+		Msg.rdbuf( 0 );
+		Info.rdbuf( 0 );
+		break;
+	case 1 :
+		Error.rdbuf( std::cerr.rdbuf() );
+		Msg.rdbuf( 0 );
+		Info.rdbuf( 0 );
+		break;
+	case 2 :
+		Error.rdbuf( std::cerr.rdbuf() );
+		Msg.rdbuf( std::cout.rdbuf() );
+		Info.rdbuf( 0 );
+		break;
+	case 3 :
+		Error.rdbuf( std::cerr.rdbuf() );
+		Msg.rdbuf( std::cout.rdbuf() );
+		Info.rdbuf( std::cout.rdbuf() );
+		break;
+	default : fRet = false;
+	}
+
+	return fRet;
 }

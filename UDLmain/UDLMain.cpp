@@ -37,6 +37,7 @@ namespace pod = boost::program_options::detail;
 #include "UDLMeasDevice.h"
 #include "UdlDbCsv.h"
 #include "UdlSettings.h"
+#include "UdlStdOut.h"
 
 
 int main( int argc, char *argv[] ){
@@ -51,6 +52,7 @@ int main( int argc, char *argv[] ){
 			("help,h", "produce help message")
 			("version,v", "udl 0.0.2")
 			("config-file,f", po::value<std::string>(), "config file")
+			("verbose", po::value<int>(), "Verbosite 0=Quiet - 3=Verbose")
 //			("output-file,o", po::value<std::string>(), "output file")
 			("warranty", "This program comes with ABSOLUTELY NO WARRANTY; for details type --warranty")
 			("redist", "This is free software, and you are welcome to redistribute it under certain conditions; type --redist' for details.")
@@ -61,11 +63,11 @@ int main( int argc, char *argv[] ){
 		po::notify(vm);
 
 		if( vm.empty() ){
-			std::cout << desc << "\n";
-			return EXIT_SUCCESS;
+			std::cout << desc << std::endl;
+			return EXIT_FAILURE;
 		}
 		else if (vm.count("help")) {
-			std::cout << desc << "\n";
+			std::cout << desc << std::endl;
 			return EXIT_SUCCESS;
 		}
 		else if (vm.count("version")) {
@@ -86,9 +88,19 @@ int main( int argc, char *argv[] ){
 			std::cout << "" << std::endl;
 			return EXIT_SUCCESS;
 		}
-		else if (vm.count("config-file")) {
+
+		if (vm.count("verbose")) {
+			if( UdlOut::SetVerbosity( vm["verbose"].as<int>() ) != false ){
+				UdlOut::Info << "Verbosity: " << vm["verbose"].as<int>() << UdlOut::EndLine;
+			}
+			else{
+				UdlOut::Error << "Wrong Verbosity: " << vm["verbose"].as<int>() << UdlOut::EndLine;
+			}
+		}
+
+		if (vm.count("config-file")) {
 			Settings.SetConfigFile( vm["config-file"].as<std::string>() );
-			std::cout << "Using Config-File :" << Settings.ConfigFile() << std::endl;
+			UdlOut::Info << "Using Config-File :" << Settings.ConfigFile() << UdlOut::EndLine;
 		}
 
 	}
@@ -97,15 +109,13 @@ int main( int argc, char *argv[] ){
 		return EXIT_SUCCESS;
 	}
 
-
 	Settings.ParseConfigFile();
-
 
 	// Config Task
 	UDLTask* pUDLTask = new UDLTask;
 
 	// Load/Setup Devices
-	std::cout << "Load/Setup Devices" << std::endl;
+	UdlOut::Info << "Load/Setup Devices" << UdlOut::EndLine;
 	for( size_t i = 0; i < Settings.MeasDev().size(); i++ ){
 		std::vector<std::string> vecArgs;
 
@@ -121,14 +131,14 @@ int main( int argc, char *argv[] ){
 	}
 
 	// Config Action
-	std::cout << "Config Action" << std::endl;
+	UdlOut::Info << "Config Action" << UdlOut::EndLine;
 	UDLAction* pUDLAction = new UDLAction;
 	pUDLAction->SetSampleTime( Settings.SampleTimeMs() );
 	pUDLTask->SetAction( pUDLAction );
 
 	// Config DataBase
-	std::cout << "Config DataBase" << std::endl;
-	std::cout << "Using CSV : " << Settings.OutFile() << std::endl;
+	UdlOut::Info << "Config DataBase" << UdlOut::EndLine;
+	UdlOut::Info << "Using CSV : " << Settings.OutFile() << UdlOut::EndLine;
 	UdlDbCsv* pUdlDb = new UdlDbCsv;
 	std::vector<std::string> nn;
 	Settings.MesDevNiceNames( nn );
@@ -137,10 +147,10 @@ int main( int argc, char *argv[] ){
 
 	pUDLTask->SetDataBase( pUdlDb );
 
-	std::cout << "Start Taks" << std::endl;
+	UdlOut::Info << "Start Taks" << UdlOut::EndLine;
 	pUDLTask->Start();
 
-	std::cout << "Task -> work" << std::endl;
+	UdlOut::Info << "Task -> work" << UdlOut::EndLine;
 	pUDLTask->Work();
 
 	return EXIT_SUCCESS;

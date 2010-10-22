@@ -26,7 +26,7 @@
 
 #include "UDLDevice.h"
 #include "UDLMeasDevice.h"
-#include <iostream>
+#include "UdlStdOut.h"
 #include <string>
 #include <vector>
 
@@ -70,7 +70,7 @@ bool UDLMeasDevice::LoadDeviceLibrary( const std::string &strLibPath ){
 
 		m_dllHandle  =  ::LoadLibrary( strLibPath.c_str() );
 		if( !m_dllHandle ){
-			std::cout << "Cant load library!" << strLibPath;;
+			UdlOut::Error << "Cant load library!" << strLibPath << std::endl;
 			return false;
 		}
 		LoadFunction( (void**)&m_pfnCreate, "Create" );
@@ -94,7 +94,7 @@ bool UDLMeasDevice::LoadFunction( void** pfn, const std::string &FunctionName ){
 	if( m_dllHandle ){
 		*pfn  =  (void*)GetProcAddress( m_dllHandle,  FunctionName.c_str() );
 		if( !(*pfn) ){
-			std::cout << "Cant load Funktion! : " << FunctionName << std::endl;
+			UdlOut::Error << "Cant load Funktion! : " << FunctionName << std::endl;
 			return false;
 		}
 	}

@@ -22,24 +22,27 @@
 #ifndef UDLSTDOUT_H_
 #define UDLSTDOUT_H_
 
-class UdlStdOut {
-public:
+#include <ostream>
+#include <iostream>
 
-	enum VerbosityLevel {
-		UDLOUT_VERB_ERROR = 0,
-		UDLOUT_VERB_STATUS = 1,
-		UDLOUT_VERB_INFO = 2,
-	};
+class UdlOut {
 
-	UdlStdOut();
-	virtual ~UdlStdOut();
+public :
 
-	static void UdlPrint( std::string strMsg, int iLevel = 3 );
+	static const char EndLine;
 
-protected:
+	static std::ostream Error;
+	static std::ostream Info;
+	static std::ostream Msg;
 
-private:
-	static VerbosityLevel mVerbLevel( UDLOUT_VERB_STATUS );
+	/*
+		UDLOUT_VERB_QUIET = 0,
+		UDLOUT_VERB_ERROR = 1,
+		UDLOUT_VERB_STATE = 2,
+		UDLOUT_VERB_INFO = 3,
+	*/
+	static bool SetVerbosity( int vl );
+
 };
 
 #endif /* UDLSTDOUT_H_ */

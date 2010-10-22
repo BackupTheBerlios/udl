@@ -27,7 +27,7 @@
 #ifndef UDLACTION_H_
 #define UDLACTION_H_
 
-#include <vector>
+#include <stdint.h>
 
 class UDLAction {
 

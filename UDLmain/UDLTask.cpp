@@ -18,15 +18,13 @@
  * www.helektronik.de - udl@helektronik.de
  */
 
-
 #include "windows.h"
-
-#include <iostream>
-
-#include "UDLTask.h"
 
 #include "boost/asio.hpp"
 #include "boost/date_time/posix_time/posix_time.hpp"
+
+#include "UDLTask.h"
+#include "UdlStdOut.h"
 
 UDLTask::UDLTask()
 {
@@ -68,7 +66,11 @@ void UDLTask::Work( void ){
 
 
 	std::vector<SMeasValue_t> vecMeasVal( m_Devices.size() );
-	std::cout << "Start measureing..." <<  std::endl;
+	UdlOut::Msg << "Start measureing..." <<  std::endl;
+	UdlOut::Msg << "***************************************" << std::endl;
+	for( size_t i = 0; i < m_Devices.size() ; i++ ){
+		UdlOut::Msg << i;
+	}
 
 	while(1){
 
@@ -81,12 +83,16 @@ void UDLTask::Work( void ){
 			if( pMeasDev ){
 				pMeasDev->Trigger( 0 );
 				pMeasDev->GetMeasValue( 0, &vecMeasVal[i] );
-				std::cout << i << " : " << vecMeasVal[i].dMeasValue << " - "<< vecMeasVal[i].szUnit <<  std::endl;
 			}
 		}
 
 		m_DataBases.at(0)->PushData( vecMeasVal, 0  );
 		m_DataBases.at(0)->Flush();
+
+		for( size_t i = 0; i < vecMeasVal.size() ; i++ ){
+			UdlOut::Msg << vecMeasVal[i].dMeasValue << "\t"<< vecMeasVal[i].szUnit <<  "|";
+		}
+		UdlOut::Msg <<  "\r";
 
 		timer.wait();
 	}
