@@ -20,6 +20,7 @@
 
 
 #include "UdlDbCsv.h"
+#include "UdlStdOut.h"
 #include <fstream>
 
 
@@ -44,9 +45,13 @@ void UdlDbCsv::SetMdNames( const std::vector<std::string>& vecMdNames ){
 bool UdlDbCsv::CreateDb( const std::string& FullFileName ){
 
 
+	UdlOut::Msg << "Open CSV-File: " << FullFileName << "... ";
+
 	std::ofstream OutFile( FullFileName.c_str() );
 
 	if( !OutFile ){
+		UdlOut::Msg << "failed!" << UdlOut::EndLine;
+		UdlOut::Error << "Failed to create out file: " << FullFileName << UdlOut::EndLine;
 		return false;
 	}
 
@@ -59,6 +64,7 @@ bool UdlDbCsv::CreateDb( const std::string& FullFileName ){
 
 	mFileName = FullFileName;
 
+	UdlOut::Msg << "done " << UdlOut::EndLine;
 	return true;
 }
 

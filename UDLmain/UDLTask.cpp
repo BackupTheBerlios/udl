@@ -64,15 +64,18 @@ void UDLTask::Work( void ){
 	boost::asio::io_service io_service;
 	boost::asio::deadline_timer timer(io_service);
 
-
 	std::vector<SMeasValue_t> vecMeasVal( m_Devices.size() );
 	UdlOut::Msg << "Start measureing..." <<  std::endl;
-	UdlOut::Msg << "***************************************" << std::endl;
+	UdlOut::Msg << "***************************************" << UdlOut::EndLine;
+	UdlOut::Msg << "count\t";
 	for( size_t i = 0; i < m_Devices.size() ; i++ ){
-		UdlOut::Msg << i;
+		UdlOut::Msg << i << "\t";
 	}
+	UdlOut::Msg << UdlOut::EndLine;
 
+	size_t count(0);
 	while(1){
+		count++;
 
 		timer.expires_from_now( boost::posix_time::seconds(1) );
 
@@ -89,8 +92,9 @@ void UDLTask::Work( void ){
 		m_DataBases.at(0)->PushData( vecMeasVal, 0  );
 		m_DataBases.at(0)->Flush();
 
+		UdlOut::Msg << count << "\t";
 		for( size_t i = 0; i < vecMeasVal.size() ; i++ ){
-			UdlOut::Msg << vecMeasVal[i].dMeasValue << "\t"<< vecMeasVal[i].szUnit <<  "|";
+			UdlOut::Msg << vecMeasVal[i].dMeasValue << " "<< vecMeasVal[i].szUnit <<  "|";
 		}
 		UdlOut::Msg <<  "\r";
 

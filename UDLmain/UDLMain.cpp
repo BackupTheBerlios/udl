@@ -43,6 +43,7 @@ namespace pod = boost::program_options::detail;
 int main( int argc, char *argv[] ){
 
 	UdlSettings Settings;
+	UdlOut::SetVerbosity( 2 ); // Set standard Verbosity
 
 	//Parse arguments
 	try{
@@ -100,7 +101,6 @@ int main( int argc, char *argv[] ){
 
 		if (vm.count("config-file")) {
 			Settings.SetConfigFile( vm["config-file"].as<std::string>() );
-			UdlOut::Info << "Using Config-File :" << Settings.ConfigFile() << UdlOut::EndLine;
 		}
 
 	}
@@ -119,26 +119,44 @@ int main( int argc, char *argv[] ){
 	for( size_t i = 0; i < Settings.MeasDev().size(); i++ ){
 		std::vector<std::string> vecArgs;
 
-		vecArgs.push_back( "--Port ");
+		UdlOut::Msg << "Config: " << Settings.MeasDev()[i].NiceName();
+		UdlOut::Msg << "(" << Settings.MeasDev()[i].Library() << ")... ";
+
+		vecArgs.push_back( "--Port " );
 		vecArgs.push_back( Settings.MeasDev()[i].Args() );
 
+		UDLMD_STATUS result = -1;
+		bool fMdCreated = false;
 		UDLMeasDevice* pUDLDev = new UDLMeasDevice;
-		pUDLDev->LoadDeviceLibrary( Settings.MeasDev()[i].Library() );
-		pUDLDev->Setup( vecArgs );
-		pUDLDev->Connect();
+		if( pUDLDev )
+			fMdCreated = pUDLDev->LoadDeviceLibrary( Settings.MeasDev()[i].Library() );
+		else
+			UdlOut::Error<< "Failed to load: " << Settings.MeasDev()[i].Library() << UdlOut::EndLine;
 
+		if( fMdCreated ){
+			result = pUDLDev->Setup( vecArgs );
+			result = pUDLDev->Connect();
+		}
+
+		if( result == 0 ){
+			UdlOut::Msg << "done" << UdlOut::EndLine;
+		}
+		else{
+			UdlOut::Msg << "failed!" << UdlOut::EndLine;
+			UdlOut::Error << "Failed to setup: " << Settings.MeasDev()[i].NiceName() << UdlOut::EndLine;
+			return EXIT_FAILURE;
+		}
 		pUDLTask->SetDevice( pUDLDev );
 	}
 
 	// Config Action
-	UdlOut::Info << "Config Action" << UdlOut::EndLine;
+	//UdlOut::Info << "Config Action" << UdlOut::EndLine;
 	UDLAction* pUDLAction = new UDLAction;
 	pUDLAction->SetSampleTime( Settings.SampleTimeMs() );
 	pUDLTask->SetAction( pUDLAction );
 
 	// Config DataBase
 	UdlOut::Info << "Config DataBase" << UdlOut::EndLine;
-	UdlOut::Info << "Using CSV : " << Settings.OutFile() << UdlOut::EndLine;
 	UdlDbCsv* pUdlDb = new UdlDbCsv;
 	std::vector<std::string> nn;
 	Settings.MesDevNiceNames( nn );
@@ -147,10 +165,9 @@ int main( int argc, char *argv[] ){
 
 	pUDLTask->SetDataBase( pUdlDb );
 
-	UdlOut::Info << "Start Taks" << UdlOut::EndLine;
 	pUDLTask->Start();
 
-	UdlOut::Info << "Task -> work" << UdlOut::EndLine;
+	// TODO: Start task as thread and do here some interaktive stuff (break, stop,)
 	pUDLTask->Work();
 
 	return EXIT_SUCCESS;
