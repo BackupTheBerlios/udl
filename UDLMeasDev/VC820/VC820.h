@@ -44,7 +44,7 @@ public:
 
 	~VC820();
 
-	virtual UDLMD_STATUS Setup( uint32_t cArgs, char *rgpszArg[] );
+	virtual UDLMD_STATUS Setup( char *pszArg, uint32_t cArgs );
 
 	virtual UDLMD_STATUS Connect( void );
 

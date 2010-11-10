@@ -40,7 +40,7 @@ public:
 	virtual bool LoadDeviceLibrary( const std::string &strLibPath ) = 0;
 
 
-	virtual UDLMD_STATUS Setup( uint32_t cArgs, char *rgpszArg[] ) = 0;
+	virtual UDLMD_STATUS Setup( char* pszArg, uint32_t cArg ) = 0;
 
 	virtual UDLMD_STATUS Connect( void ) = 0;
 

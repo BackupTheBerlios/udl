@@ -19,18 +19,11 @@
  */
 
 #include "UdlSettings.h"
-
-#include <fstream>
-#include <stdlib.h>
-#include <map>
-
-#include <boost/config.hpp>
-#include <boost/program_options/detail/config_file.hpp>
-#include <boost/program_options/parsers.hpp>
-#include "boost/program_options.hpp"
-namespace pod = boost::program_options::detail;
-
+#include "UdlSettingsFile.h"
 #include "UdlStdOut.h"
+
+#include <sstream>
+#include <map>
 
 UdlSettings::UdlSettings()
 {
@@ -42,66 +35,46 @@ UdlSettings::~UdlSettings()
 
 bool UdlSettings::ParseConfigFile( void ){
 
-	std::map<std::string, std::string> parameters;
-	if( !mConfigFile.empty() ){
-		UdlOut::Msg << "Reading Config-File: " << mConfigFile << UdlOut::EndLine;
+	UdlSettingsFile sf;
+	UdlOut::Msg << "Reading Config-File: " << mConfigFile << UdlOut::EndLine;
+	sf.Parse( mConfigFile );
 
-		std::ifstream config( mConfigFile.c_str() );
-		if(!config)
-		{
-			UdlOut::Error << "Can´t open file: "<< mConfigFile << UdlOut::EndLine;
-			return false;
-		}
+	sf.GetValueAsLong( "Measurement" , "SampleTime", m_SampleTimeMs );
+	sf.GetValueAsLong( "Measurement" , "SampleCount", m_SampleCount );
+	sf.GetValueAsString( "Out" , "OutFileName", mOutFile );
 
-		//parameters
-		std::set<std::string> options;
-		options.insert("*");
-
-		try{
-			for (pod::config_file_iterator i(config, options), e ; i != e; ++i)
-			{
-				UdlOut::Info << i->string_key <<" "<<i->value[0] << std::endl;
-				parameters[i->string_key] = i->value[0];
-			}
-		}
-		catch( std::exception& e )
-		{
-			UdlOut::Error << "Exception: " << e.what() << std::endl;
-		}
-
-	}
-
-	mSampleTimeMs = atoi( parameters["Measurement.SampleTime"].c_str() );
-
-	mSampleCount = atoi( parameters["Measurement.SampleCount"].c_str() );
-
-	mOutFile = parameters["Out.OutFileName"];
+	UdlOut::Info << "SampleTime: " << m_SampleTimeMs << UdlOut::EndLine;
+	UdlOut::Info << "SampleCount: " << m_SampleCount << UdlOut::EndLine;
+	UdlOut::Info << "OutFileName: " << mOutFile << UdlOut::EndLine;
 
 	// Md
 	mMd.clear();
 
-	size_t i(1);
+	size_t i = 1;
 	while(  i >= 1 ){
-		std::string strMeasDevName;
+		std::string strMeasDev;
+		std::stringstream sstr;
+		const UdlSettingsSection* pSection;
 
-		char szBuff[1000];
-		strMeasDevName = "MeasDev_";
-		strMeasDevName += std::string( itoa(i, szBuff, 10 ) ); //TODO This is not realy up to date
+		sstr << "MeasDev_" << i;
+		sstr >> strMeasDev;
 
 		// Scan config data for devices
-		if( parameters.find(strMeasDevName+".Library") != parameters.end() ){
-			UdlOut::Info << "Config: " << strMeasDevName << std::endl;
+		UdlOut::Info << "Scan for Device: " << strMeasDev << UdlOut::EndLine;
+		pSection = sf.GetSection( strMeasDev );
+		if( pSection ){
+			std::string strSection;
+			std::string strLibrary;
+			std::string strNiceName;
 
-			std::string Library = parameters[strMeasDevName+".Library"];
-			std::string NiceName = parameters[strMeasDevName+".NiceName"];
-			//:TODO: Should work with all args Arg.xx
-			std::string Args = parameters[strMeasDevName+".Arg.Port"];
+			sf.GetSectionAsString( pSection, strSection );
+			UdlOut::Info << "Config: " << strMeasDev << UdlOut::EndLine;
+			UdlOut::Info << strSection << UdlOut::EndLine;
 
-			UdlOut::Info << "Library: " << Library << UdlOut::EndLine;
-			UdlOut::Info << "Args: " << Args << UdlOut::EndLine;
-			UdlOut::Info << "NiceName: " << NiceName << UdlOut::EndLine;
+			sf.GetValueAsString( strMeasDev, "Library", strLibrary );
+			sf.GetValueAsString( strMeasDev, "NiceName", strNiceName );
 
-			mMd.push_back( UdlMdSettings( NiceName, Library, Args ) );
+			mMd.push_back( UdlMdSettings( strNiceName, strLibrary, strSection ) );
 
 			i++;
 		}

@@ -62,16 +62,16 @@ public:
 	void SetConfigFile( const std::string& s ) { mConfigFile = s; };
 	void SetMd( const UdlMdSettings& md ) { mMd.push_back(md); };
 	void SetOutFile( const std::string& f ) { mOutFile = f; };
-	void SetSampleTime( int t ) { mSampleTimeMs = t; };
-	void SetSampleCount( int c ) { mSampleCount = c; };
+	void SetSampleTime( int t ) { m_SampleTimeMs = t; };
+	void SetSampleCount( int c ) { m_SampleCount = c; };
 
 	bool ParseConfigFile( void );
 
 	const std::string& ConfigFile( void ) const { return mConfigFile; };
 	const std::string& OutFile( void ) const { return mOutFile; };
 	const std::vector<UdlMdSettings>& MeasDev( void ) const { return mMd; };
-	int SampleTimeMs( void )const { return mSampleTimeMs; };
-	int SampleCount( void )const { return mSampleCount; };
+	int SampleTimeMs( void )const { return m_SampleTimeMs; };
+	int SampleCount( void )const { return m_SampleCount; };
 
 	void MesDevNiceNames( std::vector<std::string>& nn ) const
 	{
@@ -88,8 +88,8 @@ private:
 
 	// Measurement
 	std::string mOutFile;
-	int mSampleTimeMs;
-	int mSampleCount;
+	long m_SampleTimeMs;
+	long m_SampleCount;
 
 	std::vector<UdlMdSettings> mMd;
 

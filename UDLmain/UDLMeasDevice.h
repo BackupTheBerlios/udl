@@ -35,7 +35,7 @@
 
 typedef  UDLMD_STATUS (*PFN_CREATE)( UDLMD_HANDLE* pMeasDevID );
 typedef  UDLMD_STATUS (*PFN_DELETE)( UDLMD_HANDLE MeasDevID );
-typedef  UDLMD_STATUS (*PFN_SETUP)( UDLMD_HANDLE MeasDevID, uint32_t cArgs, char *rgpszArg[] );
+typedef  UDLMD_STATUS (*PFN_SETUP)( UDLMD_HANDLE MeasDevID, char* pszArg, uint32_t cArg );
 typedef  UDLMD_STATUS (*PFN_CONNECT)( UDLMD_HANDLE MeasDevID );
 typedef  UDLMD_STATUS (*PFN_DISCONNECT)( UDLMD_HANDLE MeasDevID );
 typedef  UDLMD_STATUS (*PFN_TRIGGER)( UDLMD_HANDLE MeasDevID, uint32_t iChannel );
@@ -53,9 +53,9 @@ public:
 	virtual UDLMD_STATUS Create( UDLMD_HANDLE* pMeasDevID );
 	// TODO: Delete instanz of MeasDev m_hMeasDev before destroying dll Handle
 
-	virtual UDLMD_STATUS Setup(  std::vector<std::string> vecArgs );
+	virtual UDLMD_STATUS Setup(  const std::string& strArgs );
 
-	virtual UDLMD_STATUS Setup( uint32_t cArgs, char *rgpszArg[] );
+	virtual UDLMD_STATUS Setup( char *pszArg, uint32_t cArgs );
 
 	virtual UDLMD_STATUS Connect( void );
 

@@ -117,13 +117,8 @@ int main( int argc, char *argv[] ){
 	// Load/Setup Devices
 	UdlOut::Info << "Load/Setup Devices" << UdlOut::EndLine;
 	for( size_t i = 0; i < Settings.MeasDev().size(); i++ ){
-		std::vector<std::string> vecArgs;
-
 		UdlOut::Msg << "Config: " << Settings.MeasDev()[i].NiceName();
 		UdlOut::Msg << "(" << Settings.MeasDev()[i].Library() << ")... ";
-
-		vecArgs.push_back( "--Port " );
-		vecArgs.push_back( Settings.MeasDev()[i].Args() );
 
 		UDLMD_STATUS result = -1;
 		bool fMdCreated = false;
@@ -131,10 +126,10 @@ int main( int argc, char *argv[] ){
 		if( pUDLDev )
 			fMdCreated = pUDLDev->LoadDeviceLibrary( Settings.MeasDev()[i].Library() );
 		else
-			UdlOut::Error<< "Failed to load: " << Settings.MeasDev()[i].Library() << UdlOut::EndLine;
+			UdlOut::Error << "Failed to load: " << Settings.MeasDev()[i].Library() << UdlOut::EndLine;
 
 		if( fMdCreated ){
-			result = pUDLDev->Setup( vecArgs );
+			result = pUDLDev->Setup( Settings.MeasDev()[i].Args() );
 			result = pUDLDev->Connect();
 		}
 

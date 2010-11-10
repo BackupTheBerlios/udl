@@ -62,10 +62,10 @@ UDLMD_API UDLMD_STATUS Delete( UDLMD_HANDLE hMeasDev ){
 	return MD_INVALIDE_HANDLE;
 }
 
-UDLMD_API UDLMD_STATUS Setup( UDLMD_HANDLE hMeasDev, uint32_t cArgs, char *rgpszArg[]){
+UDLMD_API UDLMD_STATUS Setup( UDLMD_HANDLE hMeasDev,  char* pszArg, uint32_t cArg ){
 	VC820* pDev = gDevices[hMeasDev];
 	if( pDev ){
-		return pDev->Setup( cArgs, rgpszArg );
+		return pDev->Setup( pszArg, cArg );
 	}
 	return MD_INVALIDE_HANDLE;
 }
@@ -157,15 +157,14 @@ VC820::~VC820()
 	Disconnect();
 }
 
-UDLMD_STATUS VC820::Setup( uint32_t cArgs, char *rgpszArg[] )
+UDLMD_STATUS VC820::Setup( char *pszArg, uint32_t cArgs )
 {
 
 	m_strSerialPort = "";
 
-	if( cArgs == 2 ){
-		m_strSerialPort = rgpszArg[1];
-		return EALLOK;
-	}
+	// TODO: should work
+	m_strSerialPort = "COM1";
+	return EALLOK;
 
 	return EWRONGARG;
 }

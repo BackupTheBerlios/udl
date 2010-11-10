@@ -56,15 +56,16 @@ extern "C" {
 
 	/** Configure the UDLMeasDev.
 	 *
-	 * Config the Measurement device in "Command line Style"
+	 * Config the Measurement device with an ini-File syle string
+	 * e.g.: "Port=COM1\n"
 	 * See the associated MeasDev documentation for details.
 	 *
 	 * @param hMeasDev [in] UDLMeasDevHandle.
-	 * @param cArgs [in] Number of arguments.
-	 * @param rgpszArg [in] Arguments.
+	 * @param pszArg [in] Arguments as StringNumber of arguments.
+	 * @param cArgs [in] Lenght of the String in Byte.
 	 * @return UDLMD_STATUS
 	 */
-	UDLMD_API UDLMD_STATUS Setup( UDLMD_HANDLE hMeasDev, uint32_t cArgs, char *rgpszArg[] );
+	UDLMD_API UDLMD_STATUS Setup( UDLMD_HANDLE hMeasDev, char* pszArg, uint32_t cArgs );
 
 	/** Connect with the UDLMeasDev.
 	 *

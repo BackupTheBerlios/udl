@@ -111,24 +111,18 @@ UDLMD_STATUS UDLMeasDevice::Create( UDLMD_HANDLE* pMeasDevID )
 	return Ret;
 }
 
-UDLMD_STATUS UDLMeasDevice::Setup( std::vector<std::string> vecArgs ){
-	uint32_t cArgs = (uint32_t)(vecArgs.size());
-	char* rgszArg[cArgs];
+UDLMD_STATUS UDLMeasDevice::Setup( const std::string& strArgs ){
+	char rgszArg[strArgs.size()+1];
 
-	for( size_t i = 0; i < cArgs; i++){
-		char* pszT = new char[vecArgs[i].size()+1];
-		rgszArg[i] = pszT;
-		strcpy( rgszArg[i], vecArgs[i].c_str() );
-	}
-
-	return Setup( cArgs, rgszArg );
+	strcpy( rgszArg, strArgs.c_str() );
+	return Setup( rgszArg, strArgs.size() );
 }
 
-UDLMD_STATUS UDLMeasDevice::Setup( uint32_t cArgs, char *rgpszArg[] )
+UDLMD_STATUS UDLMeasDevice::Setup( char *pszArg, uint32_t cArg  )
 {
 	uint32_t Ret = 0;
 	if( m_pfnSetup ){
-		Ret = m_pfnSetup( m_hMeasDev, cArgs, rgpszArg );
+		Ret = m_pfnSetup( m_hMeasDev, pszArg, cArg );
 	}
 	return Ret;
 }
