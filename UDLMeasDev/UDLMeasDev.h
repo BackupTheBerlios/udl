@@ -21,7 +21,7 @@
 /** \file UDLMeasDev.h
  *  \brief UDLMeasDev API
  *
- *  UDLMeasDev API Version 1.0
+ *  UDLMeasDev API Version 1.1
  *
  */
 
@@ -36,7 +36,7 @@
 #define UDLMD_API __declspec(dllimport)
 #endif
 
-#define UDLMD_API_VER 0x00000001
+#define UDLMD_API_VER 0x00010001
 
 extern "C" {
 
@@ -137,6 +137,24 @@ extern "C" {
 	 * @return UDLMD_STATUS
 	 */
 	UDLMD_API UDLMD_STATUS GetLastMeasDevError( UDLMD_HANDLE hMeasDev, uint32_t*  pu32DevErrorNbr );
+
+	/** Get Setup Information.
+	 *
+	 * This function write all available setup parameter to the given string pointer.
+	 * Comment for the all points are required.
+	 * The parameter are in the ini-file-style format e.g.:
+	 * 		"#Name of used Port\n"
+	 * 		"Port=COM1\n"
+	 *
+	 * Comment Sign: 	'#'
+	 * Seperator Sign: 	'='
+	 *
+	 * @param pszArg [out] String buffer for the information.
+	 * @param cArgs [in/out] The lenth of pszArg and on exit number of written character.
+	 * @return UDLMD_STATUS
+	 */
+	UDLMD_API UDLMD_STATUS GetSetupInfo( char* pszArg, uint32_t cArgs );
+
 
 }
 

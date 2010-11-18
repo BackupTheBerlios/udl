@@ -44,7 +44,7 @@ public:
 
 	~VC820();
 
-	virtual UDLMD_STATUS Setup( char *pszArg, uint32_t cArgs );
+	virtual UDLMD_STATUS Setup( const char *pszArg, uint32_t cArgs );
 
 	virtual UDLMD_STATUS Connect( void );
 
@@ -56,6 +56,8 @@ public:
 	virtual UDLMD_STATUS GetMeasValue( uint32_t iChannel, SMeasValue_t* pMeasVal );
 
 	virtual UDLMD_STATUS GetDeviceVerStr( char *pszDeviceVer, uint32_t cBufferLength );
+
+	virtual UDLMD_STATUS GetSetupInfo( char* pszArg, uint32_t cArgs );
 
 	void Measure( void );
 

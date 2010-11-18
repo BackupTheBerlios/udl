@@ -1,5 +1,5 @@
 
-SRC = VC820.cpp
+SRC = VC820.cpp ../../UDLmain/UdlSettingsFile.cpp
 OBJ = $(SRC:.cpp=.o) # replaces the .c from SRC with .o
 TARGET = ..\..\output\VC820.dll
 

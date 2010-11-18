@@ -65,7 +65,7 @@ void UDLTask::Work( void ){
 	boost::asio::deadline_timer timer(io_service);
 
 	std::vector<SMeasValue_t> vecMeasVal( m_Devices.size() );
-	UdlOut::Msg << "Start measureing..." <<  std::endl;
+	UdlOut::Msg << "Start measuring..." <<  std::endl;
 	UdlOut::Msg << "***************************************" << UdlOut::EndLine;
 	UdlOut::Msg << "count\t";
 	for( size_t i = 0; i < m_Devices.size() ; i++ ){

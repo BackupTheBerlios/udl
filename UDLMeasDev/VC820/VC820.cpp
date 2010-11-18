@@ -29,9 +29,12 @@
 
 #include "VC820.h"
 
+#include "../../UDLmain/UdlSettingsFile.h"
+
 #include <string>
 #include <cstring>
 #include <map>
+#include <algorithm>
 #include "windows.h"
 #include "process.h"
 
@@ -157,15 +160,19 @@ VC820::~VC820()
 	Disconnect();
 }
 
-UDLMD_STATUS VC820::Setup( char *pszArg, uint32_t cArgs )
+UDLMD_STATUS VC820::Setup( const char* pszArg, uint32_t cArgs )
 {
-
 	m_strSerialPort = "";
 
-	// TODO: should work
-	m_strSerialPort = "COM1";
-	return EALLOK;
+	if( pszArg && cArgs ){
+		std::string strT( pszArg, std::min( (size_t)cArgs, (size_t)1000 ) );
+		UdlSettingsFile sf;
 
+		sf.ParseString( strT );
+
+		if( sf.GetValueAsString( "", "Port", m_strSerialPort ) )
+			return EALLOK;
+	}
 	return EWRONGARG;
 }
 
@@ -248,6 +255,16 @@ UDLMD_STATUS VC820::GetDeviceVerStr( char *pszDeviceVer, uint32_t cBufferLength 
 	return 0;
 }
 
+UDLMD_STATUS VC820::GetSetupInfo( char* pszArg, uint32_t cArgs  ){
+
+	const char szSetupInfo[] = "\
+	# The searial line e.g. COM1 or tty1\n\
+	Port = COM1\n\
+	";
+
+	strncpy( pszArg, szSetupInfo, cArgs );
+	return 0;
+}
 
 void  VC820::Measure( void ){
 	char rgchMsgBuffer[100];
