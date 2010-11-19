@@ -43,11 +43,6 @@ int UDLTask::SetDevice( UDLDevice* dev ){
 	return -1;
 }
 
-int UDLTask::SetAction( UDLAction* action ){
-
-	return 0;
-}
-
 int UDLTask::SetDataBase( UdlDataBase* db ){
 
 	m_DataBases.push_back( db );
@@ -74,10 +69,15 @@ void UDLTask::Work( void ){
 	UdlOut::Msg << UdlOut::EndLine;
 
 	size_t count(0);
-	while(1){
+	bool fExitAfterThis = false;
+	while( fExitAfterThis == false ){
+
+		if( count >= m_SampleCount-1 && m_SampleCount > 0 ){
+			fExitAfterThis = true;
+		}
 		count++;
 
-		timer.expires_from_now( boost::posix_time::seconds(1) );
+		timer.expires_from_now( boost::posix_time::milliseconds( m_SampleTimeMs ) );
 
 		for( size_t i = 0; i < m_Devices.size() ; i++ ){
 			UDLMeasDevice* pMeasDev;

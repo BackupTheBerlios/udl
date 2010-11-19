@@ -31,7 +31,6 @@
 
 #include "UDLDevice.h"
 #include "UDLMeasDevice.h"
-#include "UDLAction.h"
 #include "UDLDataBase.h"
 
 class UDLTask {
@@ -41,8 +40,10 @@ public:
 	virtual ~UDLTask();
 
 	int SetDevice( UDLDevice* dev );
-	int SetAction( UDLAction* action );
 	int SetDataBase( UdlDataBase* db );
+
+	void SetSampleTime( size_t st ) { m_SampleTimeMs = st; };
+	void SetSampleCount( size_t sc ) { m_SampleCount= sc; };
 
 	int Start( void );
 	int Stop( void );
@@ -56,6 +57,9 @@ private:
 
 	std::vector<UDLDevice*>     m_Devices;
 	std::vector<UdlDataBase*>   m_DataBases;
+
+	size_t    m_SampleTimeMs;
+	size_t    m_SampleCount;
 
 };
 

@@ -1,6 +1,6 @@
 CXXFLAGS =	-O2 -g -Wall -fmessage-length=0
 
-SRC = UDLMain.cpp UDLTask.cpp UDLAction.cpp UDLDataBase.cpp UdlDbCsv.cpp \
+SRC = UDLMain.cpp UDLTask.cpp UDLDataBase.cpp UdlDbCsv.cpp \
       UDLMeasDevice.cpp UdlSettings.cpp UdlStdOut.cpp UdlSettingsFile.cpp
       
 OBJ = $(SRC:.cpp=.o) # replaces the .c from SRC with .o

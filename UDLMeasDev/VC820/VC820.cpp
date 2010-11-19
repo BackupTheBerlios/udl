@@ -258,7 +258,7 @@ UDLMD_STATUS VC820::GetDeviceVerStr( char *pszDeviceVer, uint32_t cBufferLength 
 UDLMD_STATUS VC820::GetSetupInfo( char* pszArg, uint32_t cArgs  ){
 
 	const char szSetupInfo[] = "\
-	# The searial line e.g. COM1 or tty1\n\
+	#Name of used Port e.g. COM1 or tty1\n\
 	Port = COM1\n\
 	";
 

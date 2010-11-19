@@ -59,8 +59,13 @@ int main( int argc, char *argv[] ){
 			("redist", "This is free software, and you are welcome to redistribute it under certain conditions; type --redist' for details.")
 		;
 
+		po::positional_options_description p;
+		p.add("config-file", -1);
+
+
 		po::variables_map vm;
-		po::store(po::parse_command_line(argc, argv, desc), vm);
+		//po::store(po::parse_command_line(argc, argv, desc), vm);
+		po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
 		po::notify(vm);
 
 		if( vm.empty() ){
@@ -144,11 +149,8 @@ int main( int argc, char *argv[] ){
 		pUDLTask->SetDevice( pUDLDev );
 	}
 
-	// Config Action
-	//UdlOut::Info << "Config Action" << UdlOut::EndLine;
-	UDLAction* pUDLAction = new UDLAction;
-	pUDLAction->SetSampleTime( Settings.SampleTimeMs() );
-	pUDLTask->SetAction( pUDLAction );
+	pUDLTask->SetSampleTime( Settings.SampleTimeMs()  );
+	pUDLTask->SetSampleCount( Settings.SampleCount() );
 
 	// Config DataBase
 	UdlOut::Info << "Config DataBase" << UdlOut::EndLine;
