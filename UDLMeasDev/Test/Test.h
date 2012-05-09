@@ -21,7 +21,7 @@
 #ifndef UDL_MD_TEST_H
 #define UDL_MD_TEST_H
 
-typedef unsigned long uint32_t;
+//typedef unsigned long uint32_t;
 
 #include "../MeasDevTypes.h"
 #include "../UDLMeasDev.h"
