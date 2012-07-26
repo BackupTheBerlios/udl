@@ -29,30 +29,35 @@
 #include "UdlStdOut.h"
 #include <string>
 #include <vector>
+#include <cstring>
 
-extern "C"
 
 UDLMeasDevice::UDLMeasDevice()
- : m_dllHandle(0)
- , m_pfnCreate(0)
+ : m_pfnCreate(0)
  , m_pfnDelete(0)
  , m_pfnSetup(0)
  , m_pfnConnect(0)
  , m_pfnDisconnect(0)
  , m_pfnTrigger(0)
  , m_pfnGetMeasValue(0)
- , m_pfnGetDllVer(0)
- , m_pfnGetDeviceVerStr(0)
 {
 
 }
 
+UDLMeasDevice::UDLMeasDevice( UDLDevice* pUdlDev ){
+
+//   m_pfnGetLibraryVer = pUdlDev->m_pfnGetLibraryVer;
+//   m_pfnGetDeviceVerStr = pUdlDev->m_pfnGetDeviceVerStr;
+//   m_pfnGetDeviceSetupInfo = pUdlDev->m_pfnGetDeviceSetupInfo;
+//   m_pfnGetDevNames = pUdlDev->m_pfnGetDevNames;
+
+   m_Lib = pUdlDev->GetLib();
+  // m_Lib.DynamicLib( pUdlDev->GetLib().GetLibraryName() );
+  LoadDeviceLibrary( );
+}
+
 UDLMeasDevice::~UDLMeasDevice()
 {
-	if( m_dllHandle ){
-		FreeLibrary( m_dllHandle );
-		m_dllHandle = 0;
-	}
 	m_pfnCreate = 0;
 	m_pfnDelete = 0;
 	m_pfnSetup = 0;
@@ -60,61 +65,60 @@ UDLMeasDevice::~UDLMeasDevice()
 	m_pfnDisconnect = 0;
 	m_pfnTrigger = 0;
 	m_pfnGetMeasValue = 0;
-	m_pfnGetDllVer = 0;
-	m_pfnGetDeviceVerStr = 0;
 }
 
-bool UDLMeasDevice::LoadDeviceLibrary( const std::string &strLibPath ){
+bool UDLMeasDevice::LoadDeviceLibrary( void ){
 
-	if( !m_dllHandle ){
+   LoadFunction( (void**)&m_pfnGetDevNames, "GetDeviceNames" );
+   LoadFunction( (void**)&m_pfnCreate, "Create" );
+   LoadFunction( (void**)&m_pfnDelete, "Delete" );
+   LoadFunction( (void**)&m_pfnSetup, "Setup" );
+   LoadFunction( (void**)&m_pfnConnect, "Connect" );
+   LoadFunction( (void**)&m_pfnDisconnect, "Disconnect" );
+   LoadFunction( (void**)&m_pfnTrigger, "Trigger" );
+   LoadFunction( (void**)&m_pfnGetMeasValue, "GetMeasValue"  );
+   LoadFunction( (void**)&m_pfnGetLibraryVer, "GetLibraryVer" );
+   LoadFunction( (void**)&m_pfnGetDeviceVerStr, "GetDeviceVerStr" );
 
-		m_dllHandle  =  ::LoadLibrary( strLibPath.c_str() );
-		if( !m_dllHandle ){
-			UdlOut::Error << "Cant load library!" << strLibPath << std::endl;
-			return false;
-		}
-		LoadFunction( (void**)&m_pfnCreate, "Create" );
-		LoadFunction( (void**)&m_pfnDelete, "Delete" );
-		LoadFunction( (void**)&m_pfnSetup, "Setup" );
-		LoadFunction( (void**)&m_pfnConnect, "Connect" );
-		LoadFunction( (void**)&m_pfnDisconnect, "Disconnect" );
-		LoadFunction( (void**)&m_pfnTrigger, "Trigger" );
-		LoadFunction( (void**)&m_pfnGetMeasValue, "GetMeasValue"  );
-		LoadFunction( (void**)&m_pfnGetDllVer, "GetDllVer" );
-		LoadFunction( (void**)&m_pfnGetDeviceVerStr, "GetDeviceVerStr" );
+   return true;
+}
 
-		Create( &m_hMeasDev );
+
+bool UDLMeasDevice::LoadDeviceLibrary( const std::wstring &strLibPath ){
+
+	if( m_Lib.LoadLibrary( strLibPath ) ){
+
+	   LoadDeviceLibrary();
+
+		Create( &m_hMeasDev, "test" );
+	}
+	else{
+      UdlOut::Error << "Can not load library!" /* << strLibPath */<< std::endl;
+      return false;
 	}
 
 	return true;
 }
 
-bool UDLMeasDevice::LoadFunction( void** pfn, const std::string &FunctionName ){
 
-	if( m_dllHandle ){
-		*pfn  =  (void*)GetProcAddress( m_dllHandle,  FunctionName.c_str() );
-		if( !(*pfn) ){
-			UdlOut::Error << "Cant load Funktion! : " << FunctionName << std::endl;
-			return false;
-		}
-	}
-
-	return true;
-}
-
-UDLMD_STATUS UDLMeasDevice::Create( UDLMD_HANDLE* pMeasDevID )
+UDLMD_STATUS UDLMeasDevice::Create( UDLMD_HANDLE* pMeasDevID, const char* pszName )
 {
 	uint32_t Ret = 0;
 	if(m_pfnCreate){
-		Ret = m_pfnCreate(pMeasDevID);
+		Ret = m_pfnCreate(pMeasDevID, pszName );
 	}
 	return Ret;
+}
+
+UDLMD_STATUS UDLMeasDevice::Create( std::string strName )
+{
+   return Create( &m_hMeasDev, strName.c_str() );
 }
 
 UDLMD_STATUS UDLMeasDevice::Setup( const std::string& strArgs ){
 	char rgszArg[strArgs.size()+1];
 
-	strcpy( rgszArg, strArgs.c_str() );
+	std::strcpy( rgszArg, strArgs.c_str() );
 	return Setup( rgszArg, strArgs.size() );
 }
 
@@ -165,22 +169,4 @@ UDLMD_STATUS UDLMeasDevice::GetMeasValue( uint32_t iChannel, SMeasValue_t* pMeas
 	return Ret;
 }
 
-UDLMD_STATUS UDLMeasDevice::GetDllVer(uint32_t*  pu32APIVerion, uint32_t*  pu32DLLVerion, char* pszDLLInfor )
-{
-	uint32_t Ret = 0;
-	if( m_pfnGetDllVer ){
-		Ret = m_pfnGetDllVer( pu32APIVerion, pu32DLLVerion, pszDLLInfor );
-	}
-	return Ret;
-}
-
-
-UDLMD_STATUS UDLMeasDevice::GetDeviceVerStr( char *pszDeviceVer, uint32_t cBufferLength )
-{
-	uint32_t Ret = 0;
-	if( m_pfnGetDeviceVerStr ){
-		Ret = m_pfnGetDeviceVerStr( pszDeviceVer, cBufferLength );
-	}
-	return Ret;
-}
 

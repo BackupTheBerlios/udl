@@ -18,10 +18,7 @@
  * www.helektronik.de - udl@helektronik.de
  */
 
-#include "windows.h"
-
-#include "boost/asio.hpp"
-#include "boost/date_time/posix_time/posix_time.hpp"
+#include "../UDLlib/system.h"
 
 #include "UDLTask.h"
 #include "UdlStdOut.h"
@@ -56,8 +53,7 @@ int UDLTask::Start( void ){
 }
 
 void UDLTask::Work( void ){
-	boost::asio::io_service io_service;
-	boost::asio::deadline_timer timer(io_service);
+	Timer t;
 
 	std::vector<SMeasValue_t> vecMeasVal( m_Devices.size() );
 	UdlOut::Msg << "Start measuring..." <<  std::endl;
@@ -70,6 +66,9 @@ void UDLTask::Work( void ){
 
 	size_t count(0);
 	bool fExitAfterThis = false;
+
+	t.SetDuration( m_SampleTimeMs );
+
 	while( fExitAfterThis == false ){
 
 		if( count >= m_SampleCount-1 && m_SampleCount > 0 ){
@@ -77,10 +76,9 @@ void UDLTask::Work( void ){
 		}
 		count++;
 
-		timer.expires_from_now( boost::posix_time::milliseconds( m_SampleTimeMs ) );
-
 		for( size_t i = 0; i < m_Devices.size() ; i++ ){
-			UDLMeasDevice* pMeasDev;
+
+		   UDLMeasDevice* pMeasDev;
 
 			pMeasDev = dynamic_cast<UDLMeasDevice*>( m_Devices.at(i) );
 			if( pMeasDev ){
@@ -98,7 +96,9 @@ void UDLTask::Work( void ){
 		}
 		UdlOut::Msg <<  "\r";
 
-		timer.wait();
+		UdlOut::Msg.flush();
+
+		t.WaitMsAndRestart( );
 	}
 
 

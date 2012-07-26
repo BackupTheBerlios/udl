@@ -21,10 +21,9 @@
 #ifndef UDL_MD_TEST_H
 #define UDL_MD_TEST_H
 
-//typedef unsigned long uint32_t;
+#include "../UDLMeasDevApi.h"
 
 #include "../MeasDevTypes.h"
-#include "../UDLMeasDev.h"
 
 #define UDLMD_TEST_DLL_VER 0x00000001
 
@@ -39,7 +38,7 @@ public:
 	UdlMdTest( int i );
 	~UdlMdTest();
 
-	virtual uint32_t Setup( uint32_t cArgs, char *rgpszArg[] );
+	virtual uint32_t Setup( char *rgpszArg, uint32_t cBufferLength );
 
 	virtual uint32_t Connect( void );
 

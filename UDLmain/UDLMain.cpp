@@ -1,6 +1,6 @@
 /*
  * UDL - Universal Data Logger
- * Copyright (C) 2010  Marco Hartung
+ * Copyright (C) 2012  Marco Hartung
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * www.helektronik.de - udl@helektronik.de
  */
 
-#include "windows.h"
+#include <stdlib.h>
 #include <iostream>
 #include <string>
 #include <set>
@@ -26,95 +26,81 @@
 #include <exception>
 #include <map>
 
-#include <boost/config.hpp>
-#include <boost/program_options/detail/config_file.hpp>
-#include <boost/program_options/parsers.hpp>
-#include "boost/program_options.hpp"
-namespace po = boost::program_options;
-namespace pod = boost::program_options::detail;
-
 #include "UDLTask.h"
-#include "UDLMeasDevice.h"
+#include "UDLDevices.h"
 #include "UdlDbCsv.h"
 #include "UdlSettings.h"
 #include "UdlStdOut.h"
+#include "../UDLlib/system.h"
+#include "../UDLlib/StringTools.h"
+
+#include "../UDLlib/getopt_pp/getopt_pp.h"
+using namespace GetOpt;
+
+
+const wchar_t* Help( void );
+const wchar_t* Version( void );
+const wchar_t* Redist( void );
+const wchar_t* Warranty( void );
 
 
 int main( int argc, char *argv[] ){
+   
+   UdlSettings Settings;
+   int Verbose(2);   // Set standard verbosity
+   UdlOut::SetVerbosity( Verbose );
 
-	UdlSettings Settings;
-	UdlOut::SetVerbosity( 2 ); // Set standard Verbosity
+   std::string strConfigFile;
 
-	//Parse arguments
-	try{
+   GetOpt_pp ops(argc, argv);
+   ops.exceptions(std::ios::failbit | std::ios::eofbit);
 
-		po::options_description desc("Allowed options");
-		desc.add_options()
-			("help,h", "produce help message")
-			("version,v", "udl 0.0.2")
-			("config-file,f", po::value<std::string>(), "config file")
-			("verbose", po::value<int>(), "Verbosite 0=Quiet - 3=Verbose")
-//			("output-file,o", po::value<std::string>(), "output file")
-			("warranty", "This program comes with ABSOLUTELY NO WARRANTY; for details type --warranty")
-			("redist", "This is free software, and you are welcome to redistribute it under certain conditions; type --redist' for details.")
-		;
+   try{
+      if( ops >> OptionPresent('h', "help" ) ){
+         std::wcout << Help() << std::endl;
+         return EXIT_SUCCESS;
+      }
+      if(  ops >> OptionPresent('v', "version" ) ){
+         std::wcout << Version() << std::endl;
+         return EXIT_SUCCESS;
+      }
+      if(  ops >> OptionPresent( 'w', "warranty" ) ){
+         std::wcout << Warranty() << std::endl;
+         return EXIT_SUCCESS;
+      }
+      if(  ops >> OptionPresent( 'r', "redist" ) ){
+         std::wcout << Redist() << std::endl;
+         return EXIT_SUCCESS;
+      }
 
-		po::positional_options_description p;
-		p.add("config-file", -1);
+      // Verbosite 0=Quiet - 3=Verbose
+      ops >> Option( 'V', "Verbose", Verbose, 2 );
+      if( UdlOut::SetVerbosity( Verbose ) != false ){
+         UdlOut::Info << "Verbosity: " << Verbose << UdlOut::EndLine;
+      }
+      else{
+         UdlOut::Error << "Wrong Verbosity: " << Verbose << UdlOut::EndLine;
+      }
 
+      ops >> Option('c', "config-file", strConfigFile );
 
-		po::variables_map vm;
-		//po::store(po::parse_command_line(argc, argv, desc), vm);
-		po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
-		po::notify(vm);
+   }
+   catch(GetOpt::GetOptEx ex){
+          std::wcerr << L"Error in arguments" << std::endl;
+          return EXIT_FAILURE;
+   }
 
-		if( vm.empty() ){
-			std::cout << desc << std::endl;
-			return EXIT_FAILURE;
-		}
-		else if (vm.count("help")) {
-			std::cout << desc << std::endl;
-			return EXIT_SUCCESS;
-		}
-		else if (vm.count("version")) {
-
-			std::cout << "udl 0.0.3" << std::endl;
-			std::cout << "Copyright (C) 2010  Marco Hartung" << std::endl;
-			std::cout << "This program comes with ABSOLUTELY NO WARRANTY; for details type 'udl --warranty'." << std::endl;
-			std::cout << "This is free software, and you are welcome to redistribute it" << std::endl;
-			std::cout << "under certain conditions; type 'udl --redist' for details." << std::endl;
-
-			return EXIT_SUCCESS;
-		}
-		else if( vm.count("warranty") ){
-			std::cout << "THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM “AS IS” WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION." << std::endl;
-			return EXIT_SUCCESS;
-		}
-		else if( vm.count("redist") ){
-			std::cout << "" << std::endl;
-			return EXIT_SUCCESS;
-		}
-
-		if (vm.count("verbose")) {
-			if( UdlOut::SetVerbosity( vm["verbose"].as<int>() ) != false ){
-				UdlOut::Info << "Verbosity: " << vm["verbose"].as<int>() << UdlOut::EndLine;
-			}
-			else{
-				UdlOut::Error << "Wrong Verbosity: " << vm["verbose"].as<int>() << UdlOut::EndLine;
-			}
-		}
-
-		if (vm.count("config-file")) {
-			Settings.SetConfigFile( vm["config-file"].as<std::string>() );
-		}
-
-	}
-	catch( std::exception& e ){
-		std::cerr << e.what() << std::endl;
-		return EXIT_SUCCESS;
-	}
-
+   Settings.SetConfigFile( strConfigFile );
 	Settings.ParseConfigFile();
+
+   // scan for UDL supported devices
+	// and load device modules
+	UDLDevices Devices;
+	Devices.LoadModules( L"./Devices/" ); // TODO: perhaps this path should in an ini or so
+
+ //  return 0;
+
+
 
 	// Config Task
 	UDLTask* pUDLTask = new UDLTask;
@@ -122,15 +108,19 @@ int main( int argc, char *argv[] ){
 	// Load/Setup Devices
 	UdlOut::Info << "Load/Setup Devices" << UdlOut::EndLine;
 	for( size_t i = 0; i < Settings.MeasDev().size(); i++ ){
-		UdlOut::Msg << "Config: " << Settings.MeasDev()[i].NiceName();
 		UdlOut::Msg << "(" << Settings.MeasDev()[i].Library() << ")... ";
 
 		UDLMD_STATUS result = -1;
 		bool fMdCreated = false;
-		UDLMeasDevice* pUDLDev = new UDLMeasDevice;
-		if( pUDLDev )
-			fMdCreated = pUDLDev->LoadDeviceLibrary( Settings.MeasDev()[i].Library() );
-		else
+		std::wstring str;
+		StringTools::MbStrToWStr( Settings.MeasDev()[i].Library().c_str() , str );
+		UDLMeasDevice* pUDLDev = Devices.GetDevice( str );
+		if( pUDLDev ){
+		   fMdCreated = true;
+		//	fMdCreated = pUDLDev->LoadDeviceLibrary( Settings.MeasDev()[i].Library() );
+		   //   fMdCreated = pUDLDev->LoadDeviceLibrary( Settings.MeasDev()[i].Library() );
+
+		}else
 			UdlOut::Error << "Failed to load: " << Settings.MeasDev()[i].Library() << UdlOut::EndLine;
 
 		if( fMdCreated ){
@@ -170,3 +160,27 @@ int main( int argc, char *argv[] ){
 	return EXIT_SUCCESS;
 }
 
+
+const wchar_t* Help( void ){
+   return L"Help Text is missing!!";
+}
+
+const wchar_t* Version( void ){
+   return L"udl 0.0.3\n"\
+             "Copyright (C) 2012  Marco Hartung\n"\
+             "This program comes with ABSOLUTELY NO WARRANTY; for details type 'udl --warranty'.\n"\
+             "This is free software, and you are welcome to redistribute it\n"\
+             "under certain conditions; type 'udl --redist' for details.";
+}
+const wchar_t* Redist( void ){
+   return L"Redist Text is missing!!";
+}
+const wchar_t* Warranty( void ){
+   return L"THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.\n"\
+            "EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES\n"\
+            "PROVIDE THE PROGRAM \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED,\n"\
+            "INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.\n"\
+            "THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.\n"\
+            "SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING,\n"\
+            "REPAIR OR CORRECTION.";
+}

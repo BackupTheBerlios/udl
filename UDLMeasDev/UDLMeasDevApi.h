@@ -25,27 +25,42 @@
  *
  */
 
-#ifndef UDLMEASDEV_H_
-#define UDLMEASDEV_H_
+#ifndef UDLMEASDEVAPI_H_
+#define UDLMEASDEVAPI_H_
 
 #include "MeasDevTypes.h"
 
-#ifdef BUILD_DLL /* DLL export */
-#define UDLMD_API __declspec(dllexport)
-#else            /* DLL import */
-#define UDLMD_API __declspec(dllimport)
+#ifdef WIN32
+   #ifdef BUILD_DLL /* DLL export */
+   #define UDLMD_API __declspec(dllexport)
+   #else            /* DLL import */
+   #define UDLMD_API __declspec(dllimport)
+   #endif
+#else
+   #define UDLMD_API
 #endif
 
-#define UDLMD_API_VER 0x00010001
+#define UDLMD_API_VER 0x00010002
 
 extern "C" {
+
+   /** Get supported Devices.
+    *
+    * Return a list of supported devices.
+    *
+    * @param pszNames [out] List with names e.g. "DeviceA,DeviceB".
+    * @param cBufferLength [in] The length of pszNames in Bytes.
+    * @return UDLMD_STATUS
+    */
+   UDLMD_API UDLMD_STATUS GetDeviceNames( char* pszNames, uint32_t cBufferLength );
 
 	/** Create an UDLMeasDev instance.
 	 *
 	 * @param phMeasDev [out] Handle to the created instance.
+	 * @param pszName [in] Name of the desired device.
 	 * @return UDLMD_STATUS
 	 */
-	UDLMD_API UDLMD_STATUS Create( UDLMD_HANDLE* phMeasDev );
+	UDLMD_API UDLMD_STATUS Create( UDLMD_HANDLE* phMeasDev, const char* pszName );
 
 	/** Delete an UDLMeasDev instance.
 	 *
@@ -62,10 +77,10 @@ extern "C" {
 	 *
 	 * @param hMeasDev [in] UDLMeasDevHandle.
 	 * @param pszArg [in] Arguments as StringNumber of arguments.
-	 * @param cArgs [in] Lenght of the String in Byte.
+	 * @param cBufferLength [in] Lenght of the pszArg in Byte.
 	 * @return UDLMD_STATUS
 	 */
-	UDLMD_API UDLMD_STATUS Setup( UDLMD_HANDLE hMeasDev, char* pszArg, uint32_t cArgs );
+	UDLMD_API UDLMD_STATUS Setup( UDLMD_HANDLE hMeasDev, const char* pszArg, uint32_t cBufferLength );
 
 	/** Connect with the UDLMeasDev.
 	 *
@@ -117,7 +132,7 @@ extern "C" {
 	 */
 	UDLMD_API UDLMD_STATUS GetDeviceVerStr( UDLMD_HANDLE hMeasDev, char *pszDeviceVer, uint32_t cBufferLength );
 
-	/** Get the DLL Version.
+	/** Get the Library Version.
 	 *
 	 *
 	 * @param pu32APIVerion [out] The Version of the used UDLAPI.
@@ -125,12 +140,12 @@ extern "C" {
 	 * @param pszDLLInfo [out] Dll info String.
 	 * @return UDLMD_STATUS
 	 */
-	UDLMD_API UDLMD_STATUS GetDllVer( uint32_t*  pu32APIVerion, uint32_t*  pu32DLLVerion, char* pszDLLInfo );
+	UDLMD_API UDLMD_STATUS GetLibraryVer( uint32_t*  pu32APIVersion, uint32_t*  pu32LibVersion );
 
 	/** Get last Error.
 	 *
 	 * Get the last error number of the device.
-	 * See the dll documentation for the error number definition.
+	 * See the library documentation for the error number definition.
 	 *
 	 * @param hMeasDev [in] Handle to the UDLMeasDev instance.
 	 * @param pu32DevErrorNbr [out] The Error Nbr.
@@ -149,12 +164,12 @@ extern "C" {
 	 * Comment Sign: 	'#'
 	 * Seperator Sign: 	'='
 	 *
-	 * @param pszArg [out] String buffer for the information.
-	 * @param cArgs [in/out] The lenth of pszArg and on exit number of written character.
+	 * @param pszName [in] Name of the device to be queried.
+	 * @param pszSetupInfo [out] String buffer for the information.
+	 * @param cBufferLength [in] The length of pszArg.
 	 * @return UDLMD_STATUS
 	 */
-	UDLMD_API UDLMD_STATUS GetSetupInfo( char* pszArg, uint32_t cArgs );
-
+	UDLMD_API UDLMD_STATUS GetSetupInfo( const char* pszName, char* pszSetupInfo, uint32_t cBufferLength );
 
 }
 

@@ -115,10 +115,10 @@ UDLMD_API UDLMD_STATUS GetDeviceVerStr( UDLMD_HANDLE hMeasDev, char *pszDeviceVe
 }
 
 
-UDLMD_API UDLMD_STATUS GetDllVer( uint32_t*  pu32APIVerion, uint32_t*  pu32DLLVerion, char* pszDLLInfo ){
+UDLMD_API UDLMD_STATUS GetLibraryVersion( uint32_t*  pu32APIVerion, uint32_t*  pu32LibVerion ){
 
 	*pu32APIVerion = UDLMD_API_VER;
-	*pu32DLLVerion = UDLMD_VC820_DLL_VER;
+	*pu32LibVerion = UDLMD_VC820_DLL_VER;
 	strncpy( pszDLLInfo, "", 2 );
 	return MD_NO_ERROR;
 }
@@ -333,7 +333,7 @@ bool VC820::DecodeMeasage( char rgchData[], double& dValue, std::string& strUnit
 	else if(rgchData[5]&0x08) dValue = dValue/100;
 	else if(rgchData[7]&0x08) dValue = dValue/10;
 
-	if(rgchData[9]&0x08) dValue = dValue/1000000;				/*µ, m, k, M und n mit reinrechnen*/
+	if(rgchData[9]&0x08) dValue = dValue/1000000;				/*ï¿½, m, k, M und n mit reinrechnen*/
 	else if(rgchData[10]&0x08) dValue = dValue/1000;
 	else if(rgchData[9]&0x02) dValue = dValue*1000;
 	else if(rgchData[10]&0x02) dValue = dValue*1000000;
@@ -344,7 +344,7 @@ bool VC820::DecodeMeasage( char rgchData[], double& dValue, std::string& strUnit
 	else if(rgchData[11] & 0x04) strUnit = "Ohm";
 	else if(rgchData[11] & 0x08) strUnit = "F";
 	else if(rgchData[12] & 0x02) strUnit = "Hz";
-	else if(rgchData[13] & 0x01) strUnit = "°C";
+	else if(rgchData[13] & 0x01) strUnit = "ï¿½C";
 
 	if(rgchData[0] & 0x04) strUnit += " DC";
 	else if(rgchData[0] & 0x08) strUnit += " AC";

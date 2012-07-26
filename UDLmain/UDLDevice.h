@@ -1,6 +1,6 @@
 /*
  * UDL - Universal Data Logger
- * Copyright (C) 2010  Marco Hartung
+ * Copyright (C) 2012 Marco Hartung
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,33 +28,50 @@
 #define UDLDEVICE_H_
 
 #include "../UDLMeasDev/MeasDevTypes.h"
+#include "../UDLlib/DynamicLib.h"
 #include <string>
 
 class UDLDevice {
+
 public:
 
-	UDLDevice() {};
+	UDLDevice();
 
-	virtual ~UDLDevice() {};
+	virtual ~UDLDevice();
 
-	virtual bool LoadDeviceLibrary( const std::string &strLibPath ) = 0;
-
-
-	virtual UDLMD_STATUS Setup( char* pszArg, uint32_t cArg ) = 0;
-
-	virtual UDLMD_STATUS Connect( void ) = 0;
-
-	virtual UDLMD_STATUS Disconnect( void ) = 0;
+	virtual bool LoadDeviceLibrary( const std::wstring &strLibPath );
 
 
-	virtual UDLMD_STATUS Trigger( uint32_t iChannel ) = 0;
+   virtual UDLMD_STATUS GetLibraryVer( uint32_t*  pu32APIVersion, uint32_t*  pu32DLLVersion );
 
-	virtual UDLMD_STATUS GetMeasValue( uint32_t iChannel, SMeasValue_t* pMeasVal ) = 0;
+   virtual UDLMD_STATUS GetDeviceNames( char *pszNames, uint32_t c );
 
-	virtual UDLMD_STATUS GetDeviceVerStr( char *pszDeviceVer, uint32_t cBufferLength ) = 0;
+	virtual UDLMD_STATUS GetDeviceVerStr( char *pszDeviceVer, uint32_t cBufferLength );
+
+   virtual UDLMD_STATUS GetDeviceSetupInfo(  const std::string& strName, std::string& strSetupInfo );
+
+   virtual DynamicLib GetLib( void ) {return m_Lib;};
 
 
-	virtual UDLMD_STATUS GetDllVer( uint32_t*  pu32APIVerion, uint32_t*  pu32DLLVerion, char* pszDLLInfo ) = 0;
+protected:
+
+	virtual bool LoadFunction( void** pfn, const std::string &FunctionName );
+
+   typedef UDLMD_STATUS (*PFN_GETDEVICENAMES)( char *pszNames, uint32_t cBufferLength );
+   typedef UDLMD_STATUS (*PFN_GETLIBRARYVER)( uint32_t*  pu32APIVerion, uint32_t*  pu32LibVerion );
+   typedef UDLMD_STATUS (*PFN_GETDEVICEVERSTR)( char *pszDeviceVer, uint32_t cBufferLength );
+   typedef UDLMD_STATUS (*PFN_GETDEVICESETUPINFO)( const char* pszName, char* pszSetupInfo, uint32_t cBufferLength );
+
+   PFN_GETLIBRARYVER         m_pfnGetLibraryVer;
+   PFN_GETDEVICEVERSTR       m_pfnGetDeviceVerStr;
+   PFN_GETDEVICESETUPINFO    m_pfnGetDeviceSetupInfo;
+   PFN_GETDEVICENAMES        m_pfnGetDevNames;
+
+   DynamicLib                m_Lib;
+
+private:
+
+
 
 };
 

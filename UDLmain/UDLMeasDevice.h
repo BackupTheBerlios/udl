@@ -29,29 +29,27 @@
 
 #include <string>
 #include <vector>
-#include "windows.h"
+
 #include "../UDLMeasDev/MeasDevTypes.h"
+#include "UDLDevice.h"
 
-
-typedef  UDLMD_STATUS (*PFN_CREATE)( UDLMD_HANDLE* pMeasDevID );
-typedef  UDLMD_STATUS (*PFN_DELETE)( UDLMD_HANDLE MeasDevID );
-typedef  UDLMD_STATUS (*PFN_SETUP)( UDLMD_HANDLE MeasDevID, char* pszArg, uint32_t cArg );
-typedef  UDLMD_STATUS (*PFN_CONNECT)( UDLMD_HANDLE MeasDevID );
-typedef  UDLMD_STATUS (*PFN_DISCONNECT)( UDLMD_HANDLE MeasDevID );
-typedef  UDLMD_STATUS (*PFN_TRIGGER)( UDLMD_HANDLE MeasDevID, uint32_t iChannel );
-typedef  UDLMD_STATUS (*PFN_GETMEASVALUE)( UDLMD_HANDLE MeasDevID, uint32_t iChannel, SMeasValue_t* pMeasVal  );
-typedef  UDLMD_STATUS (*PFN_GETDLLVER)( uint32_t*  pu32APIVerion, uint32_t*  pu32DLLVerion, char* pszDLLInfo );
-typedef  UDLMD_STATUS (*PFN_GETDEVICEVERSTR)( char *pszDeviceVer, uint32_t cBufferLength );
 
 class UDLMeasDevice : public UDLDevice{
 
 public:
-	UDLMeasDevice();
-	virtual ~UDLMeasDevice();
-	virtual bool LoadDeviceLibrary( const std::string &strLibPath );
 
-	virtual UDLMD_STATUS Create( UDLMD_HANDLE* pMeasDevID );
-	// TODO: Delete instanz of MeasDev m_hMeasDev before destroying dll Handle
+   UDLMeasDevice();
+   UDLMeasDevice( UDLDevice* pUdlDev );
+
+	virtual ~UDLMeasDevice();
+
+	virtual bool LoadDeviceLibrary( void );
+	virtual bool LoadDeviceLibrary( const std::wstring &strLibPath );
+
+
+	virtual UDLMD_STATUS Create( UDLMD_HANDLE* pMeasDevID, const char* pszName );
+	virtual UDLMD_STATUS Create( std::string strName );
+	// TODO: Delete instans of MeasDev m_hMeasDev before destroying dll Handle
 
 	virtual UDLMD_STATUS Setup(  const std::string& strArgs );
 
@@ -66,13 +64,9 @@ public:
 
 	virtual UDLMD_STATUS GetMeasValue( uint32_t iChannel, SMeasValue_t* pMeasVal );
 
-	virtual UDLMD_STATUS GetDeviceVerStr( char *pszDeviceVer, uint32_t cBufferLength );
 
-
-	virtual UDLMD_STATUS GetDllVer( uint32_t*  pu32APIVerion, uint32_t*  pu32DLLVerion, char* pszDLLInfo );
 protected:
 
-	bool LoadFunction( void** pfn, const std::string &FunctionName );
 
 private:
 
@@ -81,16 +75,21 @@ private:
 
 	UDLMD_HANDLE          m_hMeasDev;
 
-	HINSTANCE             m_dllHandle;
-	PFN_CREATE            m_pfnCreate;
-	PFN_DELETE            m_pfnDelete;
-	PFN_SETUP             m_pfnSetup;
-	PFN_CONNECT           m_pfnConnect;
-	PFN_DISCONNECT        m_pfnDisconnect;
-	PFN_TRIGGER           m_pfnTrigger;
-	PFN_GETMEASVALUE      m_pfnGetMeasValue;
-	PFN_GETDLLVER         m_pfnGetDllVer;
-	PFN_GETDEVICEVERSTR   m_pfnGetDeviceVerStr;
+	typedef UDLMD_STATUS (*PFN_CREATE)( UDLMD_HANDLE* pMeasDevID, const char* pszName );
+	typedef UDLMD_STATUS (*PFN_DELETE)( UDLMD_HANDLE MeasDevID );
+	typedef UDLMD_STATUS (*PFN_SETUP)( UDLMD_HANDLE MeasDevID, const char* pszArg, uint32_t cArg );
+	typedef UDLMD_STATUS (*PFN_CONNECT)( UDLMD_HANDLE MeasDevID );
+	typedef UDLMD_STATUS (*PFN_DISCONNECT)( UDLMD_HANDLE MeasDevID );
+	typedef UDLMD_STATUS (*PFN_TRIGGER)( UDLMD_HANDLE MeasDevID, uint32_t iChannel );
+	typedef UDLMD_STATUS (*PFN_GETMEASVALUE)( UDLMD_HANDLE MeasDevID, uint32_t iChannel, SMeasValue_t* pMeasVal  );
+
+	PFN_CREATE                m_pfnCreate;
+	PFN_DELETE                m_pfnDelete;
+	PFN_SETUP                 m_pfnSetup;
+	PFN_CONNECT               m_pfnConnect;
+	PFN_DISCONNECT            m_pfnDisconnect;
+	PFN_TRIGGER               m_pfnTrigger;
+	PFN_GETMEASVALUE          m_pfnGetMeasValue;
 
 };
 
