@@ -91,3 +91,20 @@ size_t StringTools::Split( const std::wstring& strIn,
    return strListOut.size();
 }
 
+size_t StringTools::Split( const std::string& strIn,
+                       const std::string& strSep,
+                       std::vector<std::string>& strListOut )
+{
+   size_t pos = 0;
+   size_t found = 0;
+   strListOut.clear();
+
+   do{
+      found = strIn.find( strSep, pos );
+      strListOut.push_back( strIn.substr( pos, found-pos ) );
+      pos = found + strSep.size();
+   } while( found != std::string::npos );
+
+   return strListOut.size();
+}
+

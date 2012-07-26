@@ -24,6 +24,7 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <vector>
 
 struct UdlSettingsSection{
 	std::map< std::string, std::string> m_Values;
@@ -44,6 +45,10 @@ public:
 	bool GetValueAsString( const std::string& strSection,
 			               const std::string& strKey,
 			               std::string& str );
+
+  bool GetValueAsStringVec( const std::string& strSection,
+                        const std::string& strKey,
+                        std::vector<std::string>& str );
 
 	bool GetValueAsStream( const std::string& strSection,
 			               const std::string& strKey,

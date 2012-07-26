@@ -98,22 +98,18 @@ int main( int argc, char *argv[] ){
 	UDLDevices Devices;
 	Devices.LoadModules( L"./Devices/" ); // TODO: perhaps this path should in an ini or so
 
- //  return 0;
-
-
-
 	// Config Task
 	UDLTask* pUDLTask = new UDLTask;
 
 	// Load/Setup Devices
 	UdlOut::Info << "Load/Setup Devices" << UdlOut::EndLine;
 	for( size_t i = 0; i < Settings.MeasDev().size(); i++ ){
-		UdlOut::Msg << "(" << Settings.MeasDev()[i].Library() << ")... ";
+		UdlOut::Msg << "(" << Settings.MeasDev()[i].NiceName() << ")... ";
 
 		UDLMD_STATUS result = -1;
 		bool fMdCreated = false;
 		std::wstring str;
-		StringTools::MbStrToWStr( Settings.MeasDev()[i].Library().c_str() , str );
+		StringTools::MbStrToWStr( Settings.MeasDev()[i].MeasDev().c_str() , str );
 		UDLMeasDevice* pUDLDev = Devices.GetDevice( str );
 		if( pUDLDev ){
 		   fMdCreated = true;
@@ -121,7 +117,7 @@ int main( int argc, char *argv[] ){
 		   //   fMdCreated = pUDLDev->LoadDeviceLibrary( Settings.MeasDev()[i].Library() );
 
 		}else
-			UdlOut::Error << "Failed to load: " << Settings.MeasDev()[i].Library() << UdlOut::EndLine;
+			UdlOut::Error << "Failed to load: " << Settings.MeasDev()[i].MeasDev() << UdlOut::EndLine;
 
 		if( fMdCreated ){
 			result = pUDLDev->Setup( Settings.MeasDev()[i].Args() );

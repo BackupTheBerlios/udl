@@ -1,29 +1,35 @@
 
-#Config the measurement
+##### Configure the measurement #####
 [Measurement]
 #Sample Time in ms
-SampleTime = 1000
+SampleTime = 2000
 #MeasMode 'Continious' -> Log all MeasDev's 
-Mode = Continious
-#Count of measurements to take. (-1 never stop measuring)
-SampleCount = 1000
+Mode = Continious 
+#Count of measurements (-1 never stop measuring)
+SampleCount = -1
 
-
-#Config the output chanel
+##### Configure the output channel #####
 [Out]
 OutDataBase = FileCsv
-OutFileName = C:\test_01.csv
+OutFileName = test_01.csv
 
+##### List the devices ####
+[MeasDevices]
+#List with the used devices. One section [DEVNAME] with must exist
+#for each listed device 
+Devices = Voltmeter_1
 
-#Config the devices
-[Devices]
-MeasDev_1 = Test.dll
-MeasDev_2 = VC820.dll
+##### Configure the devices ####
+#
+#[DEVNAME]
+#Name of the used device must supported by UDL-Meas Dev
+#MeasDev = UDL-Test-MD
+#NiceName this name is used for the output
+#NiceName = TestDev01
+#Additional Options follow - device specific
+#Option1 = Argument1
 
-[MeasDev_1]
-NiceName = TestMultimeter01 
-Args = TestTest
+[Voltmeter_1]
+MeasDev = UDL-Test-MD
+NiceName = TestDev01 
 
-[MeasDev_2]
-NiceName = RealDevice
-Args = COM1

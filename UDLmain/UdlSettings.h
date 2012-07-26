@@ -31,18 +31,18 @@ class UdlMdSettings {
 public:
 
 	UdlMdSettings( const std::string& NiceName,
-			       const std::string& Library,
+			       const std::string& MeasDev,
 			       const std::string& Args )
 	{
 		mNiceName = NiceName;
 		mArgs = Args;
-		mLibrary = Library;
+		mMeasDev = MeasDev;
 	};
 	~UdlMdSettings(){};
 
 	const std::string& NiceName( void ) const { return mNiceName; };
 	const std::string& Args( void ) const { return mArgs; };
-	const std::string& Library( void ) const { return mLibrary; };
+	const std::string& MeasDev( void ) const { return mMeasDev; };
 
 protected:
 
@@ -50,7 +50,7 @@ private:
 
 	std::string mArgs;
 	std::string mNiceName;
-	std::string mLibrary;
+	std::string mMeasDev;
 };
 
 class UdlSettings {
@@ -90,6 +90,9 @@ private:
 	std::string mOutFile;
 	long m_SampleTimeMs;
 	long m_SampleCount;
+
+	// Devices
+	std::vector<std::string> m_DevIdentifier;
 
 	std::vector<UdlMdSettings> mMd;
 

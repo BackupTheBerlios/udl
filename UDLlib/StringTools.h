@@ -43,8 +43,11 @@ public:
                          const std::wstring& strSep,
                          std::vector<std::wstring>& strListOut );
 
-protected:
+   static size_t Split( const std::string& strIn,
+                         const std::string& strSep,
+                         std::vector<std::string>& strListOut );
 
+protected:
 private:
 
 

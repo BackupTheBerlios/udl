@@ -20,6 +20,7 @@
 
 #include "UdlSettingsFile.h"
 #include "UdlStdOut.h"
+#include "../UDLlib/StringTools.h"
 
 #include <fstream>
 #include <algorithm>
@@ -46,7 +47,7 @@ bool UdlSettingsFile::Parse( std::string strFilePath ){
 		std::ifstream file( strFilePath.c_str() );
 		if(!file)
 		{
-//			UdlOut::Error << "Can´t open file: "<< strFilePath << UdlOut::EndLine;
+//			UdlOut::Error << "Canï¿½t open file: "<< strFilePath << UdlOut::EndLine;
 			return false;
 		}
 
@@ -134,6 +135,20 @@ bool UdlSettingsFile::GetValueAsString( const std::string& strSection,
 	}
 
 	return fRet;
+}
+
+bool UdlSettingsFile::GetValueAsStringVec( const std::string& strSection,
+                                                const std::string& strKey,
+                                                std::vector<std::string>& str )
+{
+   std::string s;
+   bool fRet = GetValueAsString( strSection, strKey, s );
+
+   if( fRet ){
+      StringTools::Split( s, ";", str );
+   }
+   return fRet;
+
 }
 
 bool UdlSettingsFile::GetValueAsStream( const std::string& strSection,

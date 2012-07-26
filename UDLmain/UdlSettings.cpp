@@ -47,39 +47,32 @@ bool UdlSettings::ParseConfigFile( void ){
 	UdlOut::Info << "SampleCount: " << m_SampleCount << UdlOut::EndLine;
 	UdlOut::Info << "OutFileName: " << mOutFile << UdlOut::EndLine;
 
-	// Md
+
+	// Read MeasDevIdentifier
+	sf.GetValueAsStringVec( "MeasDevices", "Devices", m_DevIdentifier );
+
+	// Read Md-config for each dev
 	mMd.clear();
 
-	size_t i = 1;
-	while(  i >= 1 ){
-		std::string strMeasDev;
-		std::stringstream sstr;
-		const UdlSettingsSection* pSection;
-
-		sstr << "MeasDev_" << i;
-		sstr >> strMeasDev;
+	for( size_t i = 0; i < m_DevIdentifier.size(); i++ ){
+	   const UdlSettingsSection* pSection;
 
 		// Scan config data for devices
-		UdlOut::Info << "Scan for Device: " << strMeasDev << UdlOut::EndLine;
-		pSection = sf.GetSection( strMeasDev );
+		UdlOut::Info << "Scan for config of: " << m_DevIdentifier[i] << UdlOut::EndLine;
+		pSection = sf.GetSection( m_DevIdentifier[i] );
 		if( pSection ){
 			std::string strSection;
-			std::string strLibrary;
+			std::string strMeasDev;
 			std::string strNiceName;
 
 			sf.GetSectionAsString( pSection, strSection );
-			UdlOut::Info << "Config: " << strMeasDev << UdlOut::EndLine;
-			UdlOut::Info << strSection << UdlOut::EndLine;
+			//UdlOut::Info << "Config: " << strMeasDev << UdlOut::EndLine;
+			//UdlOut::Info << strSection << UdlOut::EndLine;
 
-			sf.GetValueAsString( strMeasDev, "Library", strLibrary );
-			sf.GetValueAsString( strMeasDev, "NiceName", strNiceName );
+			sf.GetValueAsString( m_DevIdentifier[i], "MeasDev", strMeasDev );
+			sf.GetValueAsString( m_DevIdentifier[i], "NiceName", strNiceName );
 
-			mMd.push_back( UdlMdSettings( strNiceName, strLibrary, strSection ) );
-
-			i++;
-		}
-		else{
-			i = 0;
+			mMd.push_back( UdlMdSettings( strNiceName, strMeasDev, strSection ) );
 		}
 	}
 
