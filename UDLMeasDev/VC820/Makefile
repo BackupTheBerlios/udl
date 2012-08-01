@@ -1,28 +1,26 @@
 
-SRC = VC820.cpp ../../UDLmain/UdlSettingsFile.cpp
+SRC = VC820.cpp ../../UDLmain/UdlSettingsFile.cpp ../../UDLlib/com/SerialPort.cpp
 OBJ = $(SRC:.cpp=.o) # replaces the .c from SRC with .o
-TARGET = ..\..\output\VC820.dll
+TARGET = ../../output/VC820.so
 
 LIBS = -L -lws2_32
 
-CC = g++
-#CFLAGS = -c -BUILD_DLL -I d:\CppLib\boost_1_39_0\
+CC = gcc
 
-CFLAGS = -DBUILD_DLL
-LDFLAGS = -shared -o 
+CFLAGS = -Wall -fPIC -c
+LDFLAGS = -shared -W1,-soname,libudlmd_vc820.so.1 -o libudlm_vc820.so.1.0 
 RM = rm
 
 .PHONY : all        # .PHONY ignores files named all
 all: $(TARGET)      # all is dependent on $(EXE) to be complete
 
 $(TARGET): $(OBJ)   # $(EXE) is dependent on all of the files in $(OBJ) to exist
-	$(CC) $(LDFLAGS) $(TARGET) $(OBJ) $(LIBS) -Wl,-out-implib,VC820.a
+	$(CC) $(LDFLAGS) $(OBJ)
 
 %.o: %.cpp         # combined w/ next line will compile recently changed .c files
-	$(CC) $(CFLAGS)-DBUILD_DLL -I d:/CppLib/boost_1_39_0 -o $@ -c $<
-
+	$(CC) $(CFLAGS) $<
 
 
 .PHONY : clean   # .PHONY ignores files named clean
 clean:
-	-$(RM) $(TARGET)  $(OBJ)    # '-' causes errors not to exit the process
+	-$(RM) $(TARGET) $(OBJ) core *~    # '-' causes errors not to exit the process

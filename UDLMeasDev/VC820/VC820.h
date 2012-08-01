@@ -1,6 +1,6 @@
 /*
  * UDL - Universal Data Logger
- * Copyright (C) 2010  Marco Hartung
+ * Copyright (C) 2012  Marco Hartung
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +21,13 @@
 #ifndef VC820_H_
 #define VC820_H_
 
-#include "windows.h"
+
+#include "../UDLMeasDevApi.h"
+#include "../MeasDevTypes.h"
+#include "../../UDLlib/com/SerialPort.h"
 
 #include <string>
-#include "../UDLMeasDev.h"
+
 
 #define UDLMD_VC820_DLL_VER 0x00000001
 
@@ -44,7 +47,7 @@ public:
 
 	~VC820();
 
-	virtual UDLMD_STATUS Setup( const char *pszArg, uint32_t cArgs );
+	virtual UDLMD_STATUS Setup( const char *pszArg, uint32_t cBufferLength );
 
 	virtual UDLMD_STATUS Connect( void );
 
@@ -79,9 +82,10 @@ private:
 	SMeasValue_t                   m_TrigMeasVall;
 	SMeasValue_t                   m_ActMeasVall;
 
-	HANDLE                         m_hCom;
-	std::string                    m_strSerialPort;
 	EERRORNBR                      m_LastError;
+
+	std::string                    m_strSerialPort;
+	SerialPort*                    m_pPort;
 
 };
 

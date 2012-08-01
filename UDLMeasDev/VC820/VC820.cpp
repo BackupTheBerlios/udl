@@ -1,6 +1,6 @@
 /*
  * UDL - Universal Data Logger
- * Copyright (C) 2010  Marco Hartung
+ * Copyright (C) 2012  Marco Hartung
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,13 +30,14 @@
 #include "VC820.h"
 
 #include "../../UDLmain/UdlSettingsFile.h"
+#include "../../UDLlib/com/SerialPort.h"
 
 #include <string>
 #include <cstring>
 #include <map>
 #include <algorithm>
-#include "windows.h"
-#include "process.h"
+//#include "windows.h"
+//#include "process.h"
 
 #include <iostream>
 
@@ -119,7 +120,7 @@ UDLMD_API UDLMD_STATUS GetLibraryVersion( uint32_t*  pu32APIVerion, uint32_t*  p
 
 	*pu32APIVerion = UDLMD_API_VER;
 	*pu32LibVerion = UDLMD_VC820_DLL_VER;
-	strncpy( pszDLLInfo, "", 2 );
+//	strncpy( pszDLLInfo, "", 2 );
 	return MD_NO_ERROR;
 }
 
@@ -140,14 +141,14 @@ void ThreadProc( void* pParam ){
 		while( pT->m_fExitThread == false )
 			pT->Measure();
 	}
-	_endthread();
+//	_endthread();
 }
 
 
 VC820::VC820()
-  : m_LastError(ENOTINIT),
-	m_strSerialPort(""),
-	m_hCom(0)
+   : m_LastError(ENOTINIT)
+   , m_strSerialPort("")
+   , m_pPort(0)
 {
 	m_TrigMeasVall.dMeasValue = 0.0;
 	m_TrigMeasVall.szUnit[0] = '\0';
@@ -160,12 +161,12 @@ VC820::~VC820()
 	Disconnect();
 }
 
-UDLMD_STATUS VC820::Setup( const char* pszArg, uint32_t cArgs )
+UDLMD_STATUS VC820::Setup( const char* pszArg, uint32_t cBufferLength )
 {
 	m_strSerialPort = "";
 
-	if( pszArg && cArgs ){
-		std::string strT( pszArg, std::min( (size_t)cArgs, (size_t)1000 ) );
+	if( pszArg && cBufferLength ){
+		std::string strT( pszArg, std::min( (size_t)cBufferLength, (size_t)1000 ) );
 		UdlSettingsFile sf;
 
 		sf.ParseString( strT );
@@ -177,45 +178,19 @@ UDLMD_STATUS VC820::Setup( const char* pszArg, uint32_t cArgs )
 }
 
 
-UDLMD_STATUS VC820::Connect( void )
-{
+UDLMD_STATUS VC820::Connect( void ){
 	EERRORNBR eRet = ECANTOPENPORT;
 
 	Disconnect();
 
-	m_hCom = CreateFile(	m_strSerialPort.c_str(),
-							GENERIC_READ | GENERIC_WRITE,
-							0, // exclusive access
-							NULL, // no security
-							OPEN_EXISTING,
-							0, // no overlapped I/O
-							NULL); // null template
+//	m_pPort = new SerialPort( m_strSerialPort.c_str() );
 
-	if(m_hCom != INVALID_HANDLE_VALUE){
-		::DCB dcb;
-
-		SetupComm(m_hCom, 128, 128); // set buffer sizes
-		GetCommState(m_hCom, &dcb);
-
-		dcb.BaudRate = 2400;
-		dcb.ByteSize = 8;
-		dcb.Parity = NOPARITY;
-		dcb.StopBits = ONESTOPBIT;
-		dcb.fAbortOnError = TRUE;
-		dcb.fDtrControl = DTR_CONTROL_ENABLE;
-		dcb.fRtsControl = RTS_CONTROL_DISABLE;
-		dcb.fOutxCtsFlow = FALSE;
-		dcb.fOutxDsrFlow = FALSE;
-		dcb.fDsrSensitivity = FALSE;
-		dcb.fOutX = FALSE;
-		dcb.fInX = FALSE;
-
-		if( SetCommState(m_hCom, &dcb) == TRUE ) eRet = EALLOK;
-	}
+	// TODO: check Port
+	eRet = EALLOK;
 
 	if( eRet == EALLOK ){
 		m_fExitThread = false;
-		_beginthread( ThreadProc, 0, this );
+//		_beginthread( ThreadProc, 0, this );
 	}
 
 	return eRet;
@@ -225,9 +200,9 @@ UDLMD_STATUS VC820::Disconnect( void )
 {
 	ExitThread( );
 
-	if( m_hCom ){
-		CloseHandle( m_hCom );
-		m_hCom = 0;
+	if( m_pPort ){
+		delete( m_pPort );
+		m_pPort = 0;
 	}
 
 	return 0;
@@ -281,11 +256,14 @@ void  VC820::Measure( void ){
 	*/
 
 	int iAnz = 14;
-	unsigned long ulBytesRead;
+	//unsigned long ulBytesRead;
 	double dValue;
 	std::string strUnit;
 
-	::ReadFile( m_hCom, rgchMsgBuffer, iAnz, &ulBytesRead, NULL);
+	if( m_pPort ){
+	   /*ulBytesRead = */ m_pPort->Read( rgchMsgBuffer, iAnz );
+	}
+	//::ReadFile( m_hCom, rgchMsgBuffer, iAnz, &ulBytesRead, NULL);
 	rgchMsgBuffer[iAnz] = '\0';
 
 	if( DecodeMeasage( rgchMsgBuffer, dValue, strUnit ) ){
