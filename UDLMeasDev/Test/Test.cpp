@@ -39,7 +39,7 @@ extern "C" {
       return MD_NO_ERROR;
    }
 
-   UDLMD_API UDLMD_STATUS Create( UDLMD_HANDLE* phMeasDev, char* pszName ){
+   UDLMD_API UDLMD_STATUS Create( UDLMD_HANDLE* phMeasDev, const char* pszName ){
       static int cNbrOfCration;
 
       UdlMdTest* pUdlMdTest = 0;
@@ -69,10 +69,10 @@ extern "C" {
       return MD_INVALIDE_HANDLE;
    }
 
-   UDLMD_API UDLMD_STATUS Setup( UDLMD_HANDLE hMeasDev, char *rgpszArg, uint32_t cBufferLength){
+   UDLMD_API UDLMD_STATUS Setup( UDLMD_HANDLE hMeasDev, const char *pszArg, uint32_t cBufferLength){
       UdlMdTest* pDev = gDevices[hMeasDev];
       if( pDev ){
-         return pDev->Setup( rgpszArg, cBufferLength );
+         return pDev->Setup( pszArg, cBufferLength );
       }
       return MD_INVALIDE_HANDLE;
    }
@@ -132,7 +132,7 @@ extern "C" {
       return MD_NO_ERROR;
    }
 
-   UDLMD_API UDLMD_STATUS GetSetupInfo( char* pszName, char* pszSetupInfo, uint32_t cBufferLength ){
+   UDLMD_API UDLMD_STATUS GetSetupInfo( const char* pszName, char* pszSetupInfo, uint32_t cBufferLength ){
       strncpy( pszSetupInfo, "#No options available for this module.", cBufferLength );
       return MD_NO_ERROR;
    }
@@ -147,7 +147,7 @@ UdlMdTest::~UdlMdTest()
 {
 }
 
-uint32_t UdlMdTest::Setup( char *rgpszArg, uint32_t cBufferLength )
+uint32_t UdlMdTest::Setup( const char *rgpszArg, uint32_t cBufferLength )
 {
 	return EALLOK;
 }

@@ -38,7 +38,7 @@ public:
 	UdlMdTest( int i );
 	~UdlMdTest();
 
-	virtual uint32_t Setup( char *rgpszArg, uint32_t cBufferLength );
+	virtual uint32_t Setup( const char *rgpszArg, uint32_t cBufferLength );
 
 	virtual uint32_t Connect( void );
 
