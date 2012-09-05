@@ -21,10 +21,10 @@
 #ifndef SYSTEM_H_
 #define SYSTEM_H_
 
-#include <time.h>
+#include "../config.h"
+
 #include <vector>
 #include <string>
-
 
 class System {
 public:
@@ -45,13 +45,12 @@ class Timer {
       Timer();
       virtual ~Timer();
 
-      void Start( void );
-      void SetDuration( unsigned long DurationMs  );
-      void WaitMsAndRestart( void );
+      static void SleepMs( uint64_t ms );
+
+      static uint64_t GetTimeMs( void );
 
    private:
-      timespec m_StartTime;
-      unsigned long m_DurationMs;
+
 };
 
 #endif /* SYSTEM_H_ */

@@ -18,6 +18,8 @@
  * www.helektronik.de - udl@helektronik.de
  */
 
+#include <config.h>
+
 #include <stdlib.h>
 #include <iostream>
 #include <string>
@@ -25,6 +27,7 @@
 #include <sstream>
 #include <exception>
 #include <map>
+#include <vector>
 
 #include "UDLTask.h"
 #include "UDLDevices.h"

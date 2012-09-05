@@ -19,11 +19,18 @@
  */
 
 #include "system.h"
+
+#ifdef UDL_WIN32
+	#include "windows.h"
+#endif /* UDL_WIN32 */
+
 #include "StringTools.h"
 #include "dirent.h"
 #include <wchar.h>
 #include <unistd.h>
 #include <iostream>
+#include <string>
+#include <ctime>
 
 /* Class System */
 
@@ -62,27 +69,36 @@ bool System::GetDirContent( const std::wstring& Dir,
 
 bool System::GetAppDir( std::wstring& AppDir ){
 
-   // win32
-   // char result[ MAX_PATH ];
-   // return std::string( result, GetModuleFileName( NULL, result, MAX_PATH ) );
+#ifdef UDL_WIN32
+    WCHAR result[ MAX_PATH ];
+	DWORD res = ::GetModuleFileNameW( NULL, result, MAX_PATH );
 
+    if( res == ERROR_SUCCESS ){
+    	AppDir = std::wstring( result );
+    	return true;
+    }
+    // return std::string( result, GetModuleFileName( NULL, result, MAX_PATH ) );
+#endif /* UDL_WIN32 */
+
+#ifdef UDL_LINUX
    char buff[1024];
    AppDir.clear();
    ssize_t len = ::readlink("/proc/self/exe", buff, sizeof(buff)-1);
    if (len != -1) {
       buff[len] = '\0';
       StringTools::MbStrToWStr( buff, AppDir );
-   } else {
-      return false;
+      return true;
    }
-   return true;
+#endif /* UDL_LINUX */
+
+   return false;
 }
 
 /* Class Timer */
 
+
 Timer::Timer(){
-   m_StartTime.tv_sec = 0;
-   m_StartTime.tv_nsec = 0;
+
 }
 
 
@@ -91,12 +107,49 @@ Timer::~Timer(){
 }
 
 
-void Timer::Start( void ){
-   clock_gettime( CLOCK_REALTIME, &m_StartTime );
+void Timer::SleepMs( uint64_t ms ){
+
+#ifdef UDL_WIN32
+	::Sleep(ms);
+#endif
+
+#ifdef UDL_LINUX
+	timespec StartTime, rem;
+	clock_gettime( CLOCK_REALTIME, &StartTime );
+
+	StartTime.tv_sec += ms/1000;
+	StartTime.tv_nsec += (ms%1000) * 1000000;
+	if (StartTime.tv_nsec >= 1000000000L) {
+		StartTime.tv_sec++ ;  StartTime.tv_nsec = StartTime.tv_nsec - 1000000000L ;
+	}
+
+	while( clock_nanosleep( CLOCK_REALTIME, TIMER_ABSTIME, &StartTime  ,&rem ) != 0 ){
+	  // TODO : Errorhandling
+	}
+#endif
+
 }
 
-void Timer::SetDuration( unsigned long DurationMs ){
-   m_DurationMs = DurationMs;
+static uint64_t Timer::GetTimeMs( void ){
+	uint64_t time;
+
+#ifdef UDL_WIN32
+	::Sleep(ms);
+#endif
+
+#ifdef UDL_LINUX
+	timespec StartTime, rem;
+	clock_gettime( CLOCK_REALTIME, &StartTime );
+
+	time = StartTime.tv_sec += ms/1000;
+	StartTime.tv_nsec += (ms%1000) * 1000000;
+	if (StartTime.tv_nsec >= 1000000000L) {
+		StartTime.tv_sec++ ;  StartTime.tv_nsec = StartTime.tv_nsec - 1000000000L ;
+	}
+
+#endif
+
+	return time;
 }
 
 
@@ -116,7 +169,7 @@ void Timer::WaitMsAndRestart( void ){
    while( clock_nanosleep( CLOCK_REALTIME, TIMER_ABSTIME, &m_StartTime  ,&rem ) != 0 ){
       // TODO : Errorhandling
    }
-
-
 }
+
+
 
