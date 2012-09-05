@@ -28,15 +28,17 @@
 #ifndef UDLMEASDEVAPI_H_
 #define UDLMEASDEVAPI_H_
 
+#include "../config.h"
 #include "MeasDevTypes.h"
 
-#ifdef WIN32
-   #ifdef BUILD_DLL /* DLL export */
+#ifdef UDL_WIN32
+//   #ifdef BUILD_DLL /* DLL export */
    #define UDLMD_API __declspec(dllexport)
-   #else            /* DLL import */
-   #define UDLMD_API __declspec(dllimport)
-   #endif
-#else
+//   #else            /* DLL import */
+//   #define UDLMD_API __declspec(dllimport)
+//   #endif
+#endif
+#ifdef UDL_LINUX
    #define UDLMD_API
 #endif
 

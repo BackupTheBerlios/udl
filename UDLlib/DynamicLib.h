@@ -21,21 +21,19 @@
 #ifndef DYNAMICLIB_H_
 #define DYNAMICLIB_H_
 
+#include "../config.h"
 
-#ifdef WIN32
+#ifdef UDL_WIN32
    #include "windows.h"
-#else
-   #include <dlfcn.h>
+   #define DYNLIB_HANDLE HINSTANCE
 #endif
-
+#ifdef UDL_LINUX
+   #include <dlfcn.h>
+   #define DYNLIB_HANDLE void*
+#endif
 
 #include <string>
 
-#ifdef WIN32
-   #define DYNLIB_HANDLE HINSTANCE
-#else
-   #define DYNLIB_HANDLE void*
-#endif
 
 class DynamicLib {
 

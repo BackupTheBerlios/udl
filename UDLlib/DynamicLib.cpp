@@ -21,31 +21,38 @@
 #include "DynamicLib.h"
 #include "StringTools.h"
 
+DynamicLib::DynamicLib( const DynamicLib& DynLib )
+{
+   m_LibHandle = const_cast<DYNLIB_HANDLE>(DynLib.GetLibHandle());
+   m_strLibName = const_cast<std::wstring&>(DynLib.GetLibraryName());
+}
+
 /*
  * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  * WinApi implementation
  *+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  */
 
-#ifdef WIN32
+#ifdef UDL_WIN32
 
 DynamicLib::DynamicLib( )
  : m_LibHandle(0)
 {
 }
 
-DynamicLib::DynamicLib( const std::string& strLibPath ){
-   LoadLibrary(LibPath);
+DynamicLib::DynamicLib( const std::wstring& strLibPath ){
+   ::LoadLibraryW( strLibPath.c_str() );
 }
+
 
 DynamicLib::~DynamicLib(){
    FreeLibrary();
 }
 
-bool DynamicLib::LoadLibrary( const std::string& strLibPath ){
+bool DynamicLib::LoadLibrary( const std::wstring& strLibPath ){
 
    FreeLibrary();
-   m_LibHandle  =  ::LoadLibrary( strLibPath.c_str() );
+   m_LibHandle  =  ::LoadLibraryW( strLibPath.c_str() );
    return m_LibHandle != 0;
 }
 
@@ -67,31 +74,23 @@ void* DynamicLib::GetFunctionAddress( const std::string& strFooName ){
    return pf;
 }
 
-#endif /* WIN32 */
+#endif /* UDL_WIN32 */
 
 /*
  * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  * Linux implementation
  *+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  */
-#ifndef WIN32
+#ifdef UDL_LINUX
 
 DynamicLib::DynamicLib( )
  : m_LibHandle(0)
 {
 }
 
-
 DynamicLib::DynamicLib( const std::wstring& strLibPath )
 {
    LoadLibrary( strLibPath );
-}
-
-
-DynamicLib::DynamicLib( const DynamicLib& DynLib )
-{
-   m_LibHandle = const_cast<DYNLIB_HANDLE>(DynLib.GetLibHandle());
-   m_strLibName = const_cast<std::wstring&>(DynLib.GetLibraryName());
 }
 
 
@@ -127,4 +126,4 @@ void* DynamicLib::GetFunctionAddress( const std::string& strFooName )
    return pf;
 }
 
-#endif /* not WIN32 */
+#endif /* UDL_LINUX */

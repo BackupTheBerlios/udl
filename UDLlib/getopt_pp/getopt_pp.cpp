@@ -82,6 +82,7 @@ GETOPT_INLINE void GetOpt_pp::_parse(int argc, char* argv[])
 	_last = _Option::OK;	// TODO: IMPROVE!!
 }
 
+/*
 GETOPT_INLINE void GetOpt_pp::_parse_env()
 {
 	// this will be optimized in version 3
@@ -114,6 +115,7 @@ GETOPT_INLINE void GetOpt_pp::_parse_env()
 		var++;
 	}
 }
+*/
 
 GETOPT_INLINE GetOpt_pp::GetOpt_pp(int argc, char* argv[])
 	: _exc(std::ios_base::goodbit)
@@ -126,7 +128,7 @@ GETOPT_INLINE GetOpt_pp::GetOpt_pp(int argc, char* argv[], _EnvTag)
 {
 	_init_flags();
 	_parse(argc, argv);	
-	_parse_env();
+//	_parse_env();
 }
 
 GETOPT_INLINE GetOpt_pp& GetOpt_pp::operator >> (const _Option& opt) throw (GetOptEx)
