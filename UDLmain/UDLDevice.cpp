@@ -20,6 +20,7 @@
 
 #include "UDLDevice.h"
 #include "UdlStdOut.h"
+#include "../UDLlib/StringTools.h"
 
 UDLDevice::UDLDevice() {
    m_pfnGetDevNames = 0;
@@ -97,7 +98,9 @@ bool UDLDevice::LoadFunction( void** pfn, const std::string &FunctionName ){
 
    *pfn  =  m_Lib.GetFunctionAddress( FunctionName );
    if( !(*pfn) ){
-      UdlOut::Error << "Can not load function! : " << FunctionName << std::endl;
+      std::string s;
+      StringTools::WStrToMbStr( m_Lib.GetLibraryName(), s );
+      UdlOut::Error << "Can not load function! : " << s << " : " << FunctionName << std::endl;
       return false;
    }
 

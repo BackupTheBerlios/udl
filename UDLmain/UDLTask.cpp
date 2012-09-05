@@ -53,7 +53,7 @@ int UDLTask::Start( void ){
 }
 
 void UDLTask::Work( void ){
-	Timer t;
+	uint64_t StartTime;
 
 	std::vector<SMeasValue_t> vecMeasVal( m_Devices.size() );
 	UdlOut::Msg << "Start measuring..." <<  std::endl;
@@ -67,9 +67,9 @@ void UDLTask::Work( void ){
 	size_t count(0);
 	bool fExitAfterThis = false;
 
-	t.SetDuration( m_SampleTimeMs );
-
 	while( fExitAfterThis == false ){
+
+	   StartTime = Timer::GetTimeMs();
 
 		if( count >= m_SampleCount-1 && m_SampleCount > 0 ){
 			fExitAfterThis = true;
@@ -98,7 +98,10 @@ void UDLTask::Work( void ){
 
 		UdlOut::Msg.flush();
 
-		t.WaitMsAndRestart( );
+		uint64_t Duration = Timer::GetTimeMs() - StartTime;
+		if( m_SampleTimeMs > Duration ){
+		   Timer::SleepMs( m_SampleTimeMs - Duration );
+		}
 	}
 
 

@@ -18,7 +18,7 @@
  * www.helektronik.de - udl@helektronik.de
  */
 
-#include <config.h>
+#include "../config.h"
 
 #include <stdlib.h>
 #include <iostream>
@@ -99,7 +99,7 @@ int main( int argc, char *argv[] ){
    // scan for UDL supported devices
 	// and load device modules
 	UDLDevices Devices;
-	Devices.LoadModules( L"./Devices/" ); // TODO: perhaps this path should in an ini or so
+	Devices.LoadModules( L"./devices/" ); // TODO: perhaps this path should in an ini or so
 
 	// Config Task
 	UDLTask* pUDLTask = new UDLTask;

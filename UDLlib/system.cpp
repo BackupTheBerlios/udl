@@ -130,46 +130,23 @@ void Timer::SleepMs( uint64_t ms ){
 
 }
 
-static uint64_t Timer::GetTimeMs( void ){
+uint64_t Timer::GetTimeMs( void ){
 	uint64_t time;
 
 #ifdef UDL_WIN32
-	::Sleep(ms);
+	// GetTickCount64(); work for vista or newer
+	time = ::GetTickCount();
 #endif
 
 #ifdef UDL_LINUX
-	timespec StartTime, rem;
+	timespec StartTime;
 	clock_gettime( CLOCK_REALTIME, &StartTime );
 
-	time = StartTime.tv_sec += ms/1000;
-	StartTime.tv_nsec += (ms%1000) * 1000000;
-	if (StartTime.tv_nsec >= 1000000000L) {
-		StartTime.tv_sec++ ;  StartTime.tv_nsec = StartTime.tv_nsec - 1000000000L ;
-	}
-
+	time = StartTime.tv_sec * 1000;
+	time += StartTime.tv_nsec / 1000000;
 #endif
 
 	return time;
 }
-
-
-void Timer::WaitMsAndRestart( void ){
-   timespec rem;
-
-   if( m_StartTime.tv_sec == 0){
-      clock_gettime( CLOCK_REALTIME, &m_StartTime );
-   }
-
-   m_StartTime.tv_sec += m_DurationMs/1000;
-   m_StartTime.tv_nsec += (m_DurationMs%1000) * 1000000;
-   if (m_StartTime.tv_nsec >= 1000000000L) {
-      m_StartTime.tv_sec++ ;  m_StartTime.tv_nsec = m_StartTime.tv_nsec - 1000000000L ;
-   }
-
-   while( clock_nanosleep( CLOCK_REALTIME, TIMER_ABSTIME, &m_StartTime  ,&rem ) != 0 ){
-      // TODO : Errorhandling
-   }
-}
-
 
 
