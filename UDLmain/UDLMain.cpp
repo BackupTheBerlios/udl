@@ -94,12 +94,17 @@ int main( int argc, char *argv[] ){
    }
 
    Settings.SetConfigFile( strConfigFile );
-	Settings.ParseConfigFile();
+   Settings.ParseConfigFile();
 
    // scan for UDL supported devices
 	// and load device modules
 	UDLDevices Devices;
-	Devices.LoadModules( L"./devices/" ); // TODO: perhaps this path should in an ini or so
+	std::wstring strModulePath;
+	System::GetAppDir( strModulePath );
+	strModulePath += L"\\devices\\";
+
+	Devices.LoadModules( strModulePath );
+	//Devices.LoadModules( L"./devices/" ); // TODO: perhaps this path should in an ini or so
 
 	// Config Task
 	UDLTask* pUDLTask = new UDLTask;
@@ -153,7 +158,7 @@ int main( int argc, char *argv[] ){
 
 	pUDLTask->Start();
 
-	// TODO: Start task as thread and do here some interaktive stuff (break, stop,)
+	// TODO: Start task as thread and do here some interactive stuff (break, stop,)
 	pUDLTask->Work();
 
 	return EXIT_SUCCESS;

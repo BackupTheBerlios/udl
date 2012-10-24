@@ -19,6 +19,7 @@
  */
 
 #include "StringTools.h"
+#include "wchar.h"
 
 
 StringTools::StringTools(){
@@ -56,18 +57,19 @@ std::string& StringTools::WStrToMbStr( const std::wstring& strIn, std::string& s
    delete[] psz;
 }
 
+
 size_t StringTools::MbStrLen( const std::wstring& strIn ){
    const wchar_t* ps = strIn.c_str();
-   size_t len = wcsrtombs( 0, &ps, 0, 0);
-   if( len >0 )
-      return len;
+   size_t len = wcsrtombs( 0, &ps, -1, 0 );  // It seems that -1 is needed to get it working on win32
+   if( len < 0 )
+      len = 0;
 
-   return 0;
+   return len;
 }
 
 size_t StringTools::WStrLen( const char* strIn ){
 
-   size_t len = mbsrtowcs( 0, &strIn, 0, 0 );
+   size_t len = mbsrtowcs( 0, &strIn, -1, 0 ); // It seems that -1 is needed to get it working on win3
    if( len >0 )
       return len;
 

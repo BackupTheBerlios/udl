@@ -43,7 +43,8 @@ bool System::GetDirContent( const std::wstring& Dir,
    Files.clear();
 
    char* ps = new char[StringTools::MbStrLen(Dir)+1];
-   dir = opendir( StringTools::WStrToMbStr( Dir, ps ) );
+   StringTools::WStrToMbStr( Dir, ps );
+   dir = opendir( ps );
    delete[] ps;
    if( dir != NULL ){
 
@@ -70,14 +71,16 @@ bool System::GetDirContent( const std::wstring& Dir,
 bool System::GetAppDir( std::wstring& AppDir ){
 
 #ifdef UDL_WIN32
-    WCHAR result[ MAX_PATH ];
-	DWORD res = ::GetModuleFileNameW( NULL, result, MAX_PATH );
+    WCHAR AppFileName[ MAX_PATH ] = L"";
+	DWORD res = ::GetModuleFileNameW( NULL, AppFileName, MAX_PATH );
 
-    if( res == ERROR_SUCCESS ){
-    	AppDir = std::wstring( result );
+    if( res != 0 ){
+    	AppDir = std::wstring( AppFileName );
+    	size_t i = AppDir.rfind( L'\\' );
+    	if( i != std::wstring::npos )
+    		AppDir.erase( i );
     	return true;
     }
-    // return std::string( result, GetModuleFileName( NULL, result, MAX_PATH ) );
 #endif /* UDL_WIN32 */
 
 #ifdef UDL_LINUX
