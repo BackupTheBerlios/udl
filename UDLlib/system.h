@@ -25,6 +25,7 @@
 
 #include <vector>
 #include <string>
+#include <inttypes.h>
 
 class System {
 public:
