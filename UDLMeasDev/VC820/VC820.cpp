@@ -44,6 +44,13 @@
 static std::map< uint32_t, VC820*>    gDevices;
 static uint32_t                       gcDevices;  //!< Number of ever created Devices
 
+
+UDLMD_API UDLMD_STATUS GetDeviceNames( char* pszNames, uint32_t cBufferLength ){
+   pszNames[0] = '\0';
+   strncpy( pszNames, "VC820", cBufferLength );
+   return MD_NO_ERROR;
+}
+
 UDLMD_API UDLMD_STATUS Create( UDLMD_HANDLE* phMeasDev){
 
 	VC820* pVC820 = new VC820;
@@ -115,11 +122,10 @@ UDLMD_API UDLMD_STATUS GetDeviceVerStr( UDLMD_HANDLE hMeasDev, char *pszDeviceVe
 	return MD_INVALIDE_HANDLE;
 }
 
+UDLMD_API UDLMD_STATUS GetLibraryVer( uint32_t*  pu32ApiVer, uint32_t*  pu32LibVer ){
 
-UDLMD_API UDLMD_STATUS GetLibraryVersion( uint32_t*  pu32APIVerion, uint32_t*  pu32LibVerion ){
-
-	*pu32APIVerion = UDLMD_API_VER;
-	*pu32LibVerion = UDLMD_VC820_DLL_VER;
+	*pu32ApiVer = UDLMD_API_VER;
+	*pu32LibVer = UDLMD_VC820_DLL_VER;
 //	strncpy( pszDLLInfo, "", 2 );
 	return MD_NO_ERROR;
 }
