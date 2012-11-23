@@ -142,7 +142,7 @@ extern "C" {
 	 * @param pszDLLInfo [out] Dll info String.
 	 * @return UDLMD_STATUS
 	 */
-	UDLMD_API UDLMD_STATUS GetLibraryVer( uint32_t*  pu32APIVersion, uint32_t*  pu32LibVersion );
+	UDLMD_API UDLMD_STATUS GetLibraryVer( uint32_t*  pu32ApiVer, uint32_t*  pu32LibVer );
 
 	/** Get last Error.
 	 *

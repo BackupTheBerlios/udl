@@ -119,10 +119,10 @@ extern "C" {
    }
 
 
-   UDLMD_API UDLMD_STATUS GetLibraryVer( uint32_t*  pu32APIVerion, uint32_t*  pu32LibVerion ){
+   UDLMD_API UDLMD_STATUS GetLibraryVer( uint32_t*  pu32ApiVer, uint32_t*  pu32LibVer ){
 
-      *pu32APIVerion = UDLMD_API_VER;
-      *pu32LibVerion = UDLMD_TEST_DLL_VER;
+      *pu32ApiVer = UDLMD_API_VER;
+      *pu32LibVer = UDLMD_TEST_DLL_VER;
       return MD_NO_ERROR;
    }
 
