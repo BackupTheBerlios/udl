@@ -100,11 +100,8 @@ int main( int argc, char *argv[] ){
 	// and load device modules
 	UDLDevices Devices;
 	std::wstring strModulePath;
-	System::GetAppDir( strModulePath );
-	strModulePath += L"\\devices\\";
-
+	System::GetDevicesDir( strModulePath );
 	Devices.LoadModules( strModulePath );
-	//Devices.LoadModules( L"./devices/" ); // TODO: perhaps this path should in an ini or so
 
 	// Config Task
 	UDLTask* pUDLTask = new UDLTask;

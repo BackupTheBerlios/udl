@@ -37,6 +37,9 @@ public:
                                  const std::wstring& FileEnding = L"" );
 
    static bool GetAppDir( std::wstring& AppDir );
+
+   static bool GetDevicesDir( std::wstring& DevDir );
+
 };
 
 

@@ -20,6 +20,7 @@
 
 #include "StringTools.h"
 #include "wchar.h"
+#include <limits>
 
 
 StringTools::StringTools(){
@@ -60,7 +61,7 @@ std::string& StringTools::WStrToMbStr( const std::wstring& strIn, std::string& s
 
 size_t StringTools::MbStrLen( const std::wstring& strIn ){
    const wchar_t* ps = strIn.c_str();
-   size_t len = wcsrtombs( 0, &ps, -1, 0 );  // It seems that -1 is needed to get it working on win32
+   size_t len = wcsrtombs( 0, &ps, std::numeric_limits<std::size_t>::max(), 0 );  // It seems that -1 is needed to get it working on win32
    if( len < 0 )
       len = 0;
 
@@ -69,7 +70,7 @@ size_t StringTools::MbStrLen( const std::wstring& strIn ){
 
 size_t StringTools::WStrLen( const char* strIn ){
 
-   size_t len = mbsrtowcs( 0, &strIn, -1, 0 ); // It seems that -1 is needed to get it working on win3
+   size_t len = mbsrtowcs( 0, &strIn, std::numeric_limits<std::size_t>::max(), 0 ); // It seems that -1 is needed to get it working on win3
    if( len >0 )
       return len;
 

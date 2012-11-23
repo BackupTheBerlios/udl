@@ -31,6 +31,8 @@
 #include <iostream>
 #include <string>
 #include <ctime>
+//#include <cerrno>
+//#include <cstring>
 
 /* Class System */
 
@@ -62,7 +64,8 @@ bool System::GetDirContent( const std::wstring& Dir,
      }
      closedir (dir);
    }else{
-     return false;
+      //std::string strErr = std::strerror( errno );
+      return false;
    }
    return true;
 }
@@ -90,12 +93,36 @@ bool System::GetAppDir( std::wstring& AppDir ){
    if (len != -1) {
       buff[len] = '\0';
       StringTools::MbStrToWStr( buff, AppDir );
+      // try to remove the executable name
+      size_t i = AppDir.rfind( L'/' );
+      if( i != std::string::npos ){
+         AppDir.erase( i );
+      }
       return true;
    }
 #endif /* UDL_LINUX */
 
    return false;
 }
+
+bool System::GetDevicesDir( std::wstring& DevDir ){
+   bool ret = false;
+
+   if( GetAppDir( DevDir ) ){
+
+#ifdef UDL_WIN32
+      DevDir += L"\\devices\\";
+#endif /* UDL_WIN32 */
+#ifdef UDL_LINUX
+      DevDir += L"/devices/";
+#endif /* UDL_LINUX */
+
+      ret = true;
+   }
+
+   return ret;
+}
+
 
 /* Class Timer */
 
