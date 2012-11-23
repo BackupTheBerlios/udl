@@ -18,7 +18,7 @@
  * www.helektronik.de - udl@helektronik.de
  */
 
-#include "../UDLlib/system.h"
+#include "../UDLlib/UdlSystem.h"
 
 #include "UDLTask.h"
 #include "UdlStdOut.h"
@@ -69,7 +69,7 @@ void UDLTask::Work( void ){
 
 	while( fExitAfterThis == false ){
 
-	   StartTime = Timer::GetTimeMs();
+	   StartTime = System::GetTimeMs();
 
 		if( count >= m_SampleCount-1 && m_SampleCount > 0 ){
 			fExitAfterThis = true;
@@ -98,9 +98,9 @@ void UDLTask::Work( void ){
 
 		UdlOut::Msg.flush();
 
-		uint64_t Duration = Timer::GetTimeMs() - StartTime;
+		uint64_t Duration = System::GetTimeMs() - StartTime;
 		if( m_SampleTimeMs > Duration ){
-		   Timer::SleepMs( m_SampleTimeMs - Duration );
+		   System::SleepMs( m_SampleTimeMs - Duration );
 		}
 	}
 

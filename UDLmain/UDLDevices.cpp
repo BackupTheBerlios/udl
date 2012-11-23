@@ -19,7 +19,7 @@
  */
 
 #include "UDLDevices.h"
-#include "../UDLlib/system.h"
+#include "../UDLlib/UdlSystem.h"
 #include "../UDLlib/StringTools.h"
 #include "UdlStdOut.h"
 
@@ -60,9 +60,6 @@ void UDLDevices::LoadModules( std::wstring strPath ){
 
             m_strDevMap[NamesList[n]] = pUDLDev;
 
-            //std::string s;
-            //StringTools::WStrToMbStr( NamesList[n], names );
-            //UdlOut::Msg << names << UdlOut::EndLine;
          }
 
       }

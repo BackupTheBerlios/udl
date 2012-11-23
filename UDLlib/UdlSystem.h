@@ -40,20 +40,9 @@ public:
 
    static bool GetDevicesDir( std::wstring& DevDir );
 
-};
+   static void SleepMs( uint64_t ms );
 
-
-class Timer {
-
-   public:
-      Timer();
-      virtual ~Timer();
-
-      static void SleepMs( uint64_t ms );
-
-      static uint64_t GetTimeMs( void );
-
-   private:
+   static uint64_t GetTimeMs( void );
 
 };
 

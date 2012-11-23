@@ -18,7 +18,7 @@
  * www.helektronik.de - udl@helektronik.de
  */
 
-#include "system.h"
+#include "UdlSystem.h"
 
 #ifdef UDL_WIN32
 	#include "windows.h"
@@ -124,20 +124,7 @@ bool System::GetDevicesDir( std::wstring& DevDir ){
 }
 
 
-/* Class Timer */
-
-
-Timer::Timer(){
-
-}
-
-
-Timer::~Timer(){
-
-}
-
-
-void Timer::SleepMs( uint64_t ms ){
+void System::SleepMs( uint64_t ms ){
 
 #ifdef UDL_WIN32
 	::Sleep(ms);
@@ -160,7 +147,7 @@ void Timer::SleepMs( uint64_t ms ){
 
 }
 
-uint64_t Timer::GetTimeMs( void ){
+uint64_t System::GetTimeMs( void ){
 	uint64_t time;
 
 #ifdef UDL_WIN32
