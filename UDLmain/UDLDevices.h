@@ -25,6 +25,7 @@
 #include "UDLMeasDevice.h"
 #include <string>
 #include <map>
+#include <vector>
 
 class UDLDevices {
 
@@ -35,7 +36,7 @@ public:
 
    void LoadModules( std::wstring strPath );
 
-   //const std::vector<std::wstring>& DeviceNames( void ){ return m_strDevNames; };
+   void GetDeviceNames( std::vector<std::wstring>& DevNames );
 
    UDLMeasDevice* GetDevice( const std::wstring& strName );
 

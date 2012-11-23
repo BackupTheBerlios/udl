@@ -46,6 +46,7 @@ const wchar_t* Version( void );
 const wchar_t* Redist( void );
 const wchar_t* Warranty( void );
 
+void ListDevices( void );
 
 int main( int argc, char *argv[] ){
    
@@ -73,6 +74,10 @@ int main( int argc, char *argv[] ){
       }
       if(  ops >> OptionPresent( 'r', "redist" ) ){
          std::wcout << Redist() << std::endl;
+         return EXIT_SUCCESS;
+      }
+      if( ops >> OptionPresent('d', "list-devices" ) ){
+         ListDevices();
          return EXIT_SUCCESS;
       }
 
@@ -112,32 +117,25 @@ int main( int argc, char *argv[] ){
 		UdlOut::Msg << "(" << Settings.MeasDev()[i].NiceName() << ")... ";
 
 		UDLMD_STATUS result = -1;
-		bool fMdCreated = false;
 		std::wstring str;
 		StringTools::MbStrToWStr( Settings.MeasDev()[i].MeasDev().c_str() , str );
 		UDLMeasDevice* pUDLDev = Devices.GetDevice( str );
 		if( pUDLDev ){
-		   fMdCreated = true;
-		//	fMdCreated = pUDLDev->LoadDeviceLibrary( Settings.MeasDev()[i].Library() );
-		   //   fMdCreated = pUDLDev->LoadDeviceLibrary( Settings.MeasDev()[i].Library() );
-
-		}else
+         result = pUDLDev->Setup( Settings.MeasDev()[i].Args() );
+         result = pUDLDev->Connect();
+		}
+		else{
 			UdlOut::Error << "Failed to load: " << Settings.MeasDev()[i].MeasDev() << UdlOut::EndLine;
-
-		if( fMdCreated ){
-			result = pUDLDev->Setup( Settings.MeasDev()[i].Args() );
-			result = pUDLDev->Connect();
 		}
 
 		if( result == 0 ){
+		   pUDLTask->SetDevice( pUDLDev );
 			UdlOut::Msg << "done" << UdlOut::EndLine;
 		}
 		else{
 			UdlOut::Msg << "failed!" << UdlOut::EndLine;
-			UdlOut::Error << "Failed to setup: " << Settings.MeasDev()[i].NiceName() << UdlOut::EndLine;
 			return EXIT_FAILURE;
 		}
-		pUDLTask->SetDevice( pUDLDev );
 	}
 
 	pUDLTask->SetSampleTime( Settings.SampleTimeMs()  );
@@ -161,6 +159,25 @@ int main( int argc, char *argv[] ){
 	return EXIT_SUCCESS;
 }
 
+
+void ListDevices( void ){
+
+   // scan for UDL supported devices
+   // and load device modules
+   UDLDevices Devices;
+   std::wstring strModulePath;
+   System::GetDevicesDir( strModulePath );
+   Devices.LoadModules( strModulePath );
+
+   std::vector<std::wstring> DevNames;
+   Devices.GetDeviceNames( DevNames );
+
+   std::wcout << L"List of all available devices:" << std::endl;
+   for( size_t i = 0; i < DevNames.size(); i++ ){
+      std::wcout << DevNames[i] << std::endl;
+   }
+
+}
 
 const wchar_t* Help( void ){
    return L"Help Text is missing!!";

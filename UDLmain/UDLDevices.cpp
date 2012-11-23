@@ -69,9 +69,19 @@ void UDLDevices::LoadModules( std::wstring strPath ){
    }
 }
 
+void UDLDevices::GetDeviceNames( std::vector<std::wstring>& DevNames )
+{
+   std::map<std::wstring, UDLDevice*>::const_iterator it;
+   DevNames.clear();
 
-UDLMeasDevice* UDLDevices::GetDevice( const std::wstring& strName ){
+   for( it = m_strDevMap.begin(); it != m_strDevMap.end(); it++ ){
+      DevNames.push_back( it->first );
+   }
+}
 
+
+UDLMeasDevice* UDLDevices::GetDevice( const std::wstring& strName )
+{
    std::map<std::wstring, UDLDevice*>::const_iterator it = m_strDevMap.find( strName );
    UDLMeasDevice* pMd = 0;
 
