@@ -180,7 +180,18 @@ void ListDevices( void ){
 }
 
 const wchar_t* Help( void ){
-   return L"Help Text is missing!!";
+   return L"usage: udl [Arguments]\n"\
+            "\n"\
+            "Arguments:\n"\
+            "   -h, --help              Print this help message\n"\
+            "   -v, --version           Display the version number and copyrights\n"\
+            "   -d, --list-devices      Print a list of all supported devices\n"\
+            "   -V, --Verbose           Set the verbosity\n"
+            "                              0 = Print nothing\n"
+            "                              1 = Print only errors\n"
+            "                              2 = Normal\n"
+            "                              3 = Verbose\n"
+            "   -c, --config-file       Specify the configuration file for the measurement\n";
 }
 
 const wchar_t* Version( void ){
