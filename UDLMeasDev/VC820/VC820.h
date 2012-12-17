@@ -27,6 +27,7 @@
 #include "../../UDLlib/com/SerialPort.h"
 
 #include <string>
+#include <thread>
 
 
 #define UDLMD_VC820_DLL_VER 0x00000001
@@ -35,13 +36,6 @@
 class VC820 {
 
 public:
-
-	enum EERRORNBR{
-		EALLOK = 0,
-		ECANTOPENPORT = 1,
-		ENOTINIT = 2,
-		EWRONGARG = 3
-	};
 
 	VC820();
 
@@ -62,30 +56,25 @@ public:
 
 	virtual UDLMD_STATUS GetSetupInfo( char* pszArg, uint32_t cArgs );
 
-	void Measure( void );
-
 	bool                           m_fExitThread;
 
 protected:
-
-	EERRORNBR GetLastError( void );
-	EERRORNBR SetLastError( EERRORNBR ErrorNbr );
 
 	bool ExitThread( void );
 
 private:
 
+	static void Measure( void* pThis );
 
-	bool DecodeMeasage( char rgchData[], double& dValue, std::string& strUnit );
+	static bool DecodeMeasage( char rgchData[], double& dValue, std::string& strUnit );
 
+	SMeasValue_t   m_TrigMeasVall;
+	SMeasValue_t   m_ActMeasVall;
 
-	SMeasValue_t                   m_TrigMeasVall;
-	SMeasValue_t                   m_ActMeasVall;
+	std::string    m_strSerialPort;
+	SerialPort     m_Port;
 
-	EERRORNBR                      m_LastError;
-
-	std::string                    m_strSerialPort;
-	SerialPort*                    m_pPort;
+	std::thread   m_MeasThread;
 
 };
 
