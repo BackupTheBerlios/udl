@@ -19,15 +19,15 @@
  */
 
 #include "SerialPort.h"
+#include "../StringTools.h"
+#include <cerrno>
 
 /*
  * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  * WinApi implementation
  *+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  */
-#ifdef WIN32
-
-#include "windows.h"
+#ifdef UDL_WIN32
 
 SerialPort::SerialPort(){
 
@@ -93,20 +93,21 @@ int SerialPort::Read(  void* pData, size_t DataSize ){
 
 }
 
-#endif /* WIN32 */
+#endif /* UDL_WIN32 */
 
 /*
  * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  * Linux implementation
  *+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  */
-#ifndef WIN32
+#ifdef UDL_LINUX
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/ioctl.h>
 #include <fcntl.h>
 #include <termios.h>
-#include <stdio.h>
+#include <cstring>
 
 SerialPort::SerialPort()
    : m_Port(-1)
@@ -114,33 +115,227 @@ SerialPort::SerialPort()
 
 };
 
-SerialPort::~SerialPort(){
-
+SerialPort::~SerialPort()
+{
+   Close();
 };
 
-int SerialPort::Open( void ){
+int SerialPort::Open( const std::wstring& strPort,
+                         long BaudRate  /* = 9600 */,
+                         long DataBits  /* = 8    */,
+                         long Parity    /* = 0    */,
+                         long StopBits  /* = 1    */  )
+{
+   std::string port;
+   StringTools::WStrToMbStr( BuildPortName( strPort ), port );
+
+   if( m_Port > 0 ){
+      Close();
+   }
+
+   m_Port = open( port.c_str(), O_RDWR | O_NOCTTY );
+   if( m_Port < 0 ){
+      m_LastErrorMsg = L"Can not open: ";
+      m_LastErrorMsg += strPort;
+      m_LastErrorMsg += L"!\n";
+      m_LastErrorMsg += L"!\n";
+      m_LastErrorMsg += StringTools::MbStrToWStr( strerror(errno) );
+      return -1;
+   }
+
+   tcgetattr( m_Port, &m_OldTio ); /* save current port settings */
+
+   return Setup( BaudRate, DataBits, Parity, StopBits );
+}
+
+int SerialPort::Open( const std::string& strPort,
+                         long BaudRate  /* = 9600 */,
+                         long DataBits  /* = 8    */,
+                         long Parity    /* = 0    */,
+                         long StopBits  /* = 1    */  )
+{
+   std::wstring wstrPort;
+   StringTools::MbStrToWStr( strPort.c_str(), wstrPort );
+   return Open( wstrPort, BaudRate, DataBits, Parity, StopBits );
+}
+
+int SerialPort::Close( void )
+{
+   if( m_Port > 0 ){
+      tcsetattr( m_Port, TCSANOW, &m_OldTio );
+      close( m_Port );
+   }
+
+   m_Port  = -1;
+
    return 0;
 }
 
-int SerialPort::Setup( void ){
+int SerialPort::Setup( long BaudRate  /* = 9600 */,
+                          long DataBits  /* = 8    */,
+                          long Parity    /* = 0    */,
+                          long StopBits  /* = 1    */  )
+{
+   struct termios newtio;
+
+   if( m_Port < 0 ){
+      m_LastErrorMsg = L"Port not ready.";
+      return -1;
+   }
+
+   std::memset( &newtio, 0, sizeof(newtio) );
+   newtio.c_cflag  = GetSystemBaud( BaudRate );
+   newtio.c_cflag |= GetSystemDataBits( DataBits );
+   newtio.c_cflag |= GetSystemParity( Parity );
+   newtio.c_cflag |= GetSystemStopBits( StopBits );
+   newtio.c_cflag |= CLOCAL | CREAD;
+   newtio.c_iflag = IGNPAR;
+   newtio.c_oflag = 0;
+
+   /* set input mode (non-canonical, no echo,...) */
+   newtio.c_lflag = 0;
+
+   newtio.c_cc[VTIME]    = 0;   /* inter-character timer unused */
+   newtio.c_cc[VMIN]     = 0;   /* non blocking read */
+
+   tcflush( m_Port, TCIFLUSH );
+   tcsetattr( m_Port, TCSANOW, &newtio );
+
    return 0;
 }
 
-int SerialPort::Close( void ){
+int SerialPort::SetReadTimeout( long timeout )
+{
    return 0;
 }
 
-int SerialPort::GetPortList( void ){
+int SerialPort::SetWriteTimeout( long timeout )
+{
    return 0;
 }
 
-int SerialPort::Write( const void* pData, size_t DataSize ){
+int SerialPort::SetDtr( bool State )
+{
+   int r;
+   int c = TIOCM_DTR;
+
+   if( m_Port < 0 ){
+      return -1;
+   }
+
+   if( State ){
+     r = ioctl( m_Port, TIOCMBIC, &c );
+   }
+   else{
+     r = ioctl( m_Port, TIOCMBIS, &c );
+   }
+
+   if( r != 0 ){
+      m_LastErrorMsg = L"Failed to set the DTR line";
+      r = -1;
+   }
+
+   return r;
+}
+
+int SerialPort::SetRts( bool State )
+{
+   int r;
+   int c = TIOCM_RTS;
+
+   if( m_Port < 0 ){
+      return -1;
+   }
+
+   if( State ){
+     r = ioctl( m_Port, TIOCMBIC, &c );
+   }
+   else{
+     r = ioctl( m_Port, TIOCMBIS, &c );
+   }
+
+   if( r != 0 ){
+      m_LastErrorMsg = L"Failed to set the RTS line";
+      r = -1;
+   }
+
+   return r;
+}
+
+
+int SerialPort::Write( const void* pData, size_t DataSize )
+{
+   if( m_Port < 0 ){
+      m_LastErrorMsg = L"Port not ready.";
+      return -1;
+   }
+   int cByteWritten;
+
+   cByteWritten = write( m_Port, pData, DataSize );
+   if( cByteWritten < 0 ){
+      m_LastErrorMsg = L"Write error occurred.";
+      return 0;
+   }
+
    return 0;
 }
 
-int SerialPort::Read(  void* pData, size_t DataSize ){
-   return 0;
+int SerialPort::Read(  void* pData, size_t DataSize )
+{
+   if( m_Port < 0 ){
+      m_LastErrorMsg = L"Port not ready.";
+      return -1;
+   }
+   int cByteRead;
+   cByteRead = read( m_Port, pData, DataSize );
+   return cByteRead;
+}
+
+std::wstring SerialPort::BuildPortName( const std::wstring& port ){
+
+   return port;
+}
+
+int SerialPort::GetSystemBaud(  int BaudRate )
+{
+   switch( BaudRate ){
+      case  2400   : return B2400;
+      case  9600   : return B9600;
+      case  19200  : return B19200;
+      case  115200 : return B115200;
+      default      : return B0;
+   }
+}
+
+int SerialPort::GetSystemDataBits(  int DataBits )
+{
+   switch( DataBits ){
+      case  5 : return CS5;
+      case  6 : return CS6;
+      case  7 : return CS7;
+      case  8 : return CS8;
+      default : return CS8;
+   }
+}
+
+int SerialPort::GetSystemParity(  int Parity )
+{
+   switch( Parity ){
+      case  0   : return 0;               // No Parity
+      case  1   : return PARENB;          // Even Parity
+      case  2   : return PARENB | PARODD; // Odd Parity
+      default   : return 0;
+   }
+}
+
+int SerialPort::GetSystemStopBits(  int Stopbits )
+{
+   switch( Stopbits ){
+      case  1   : return 0;
+      case  2   : return CSTOPB;
+      default  : return 0;
+   }
 }
 
 
-#endif /* not WIN32 */
+#endif /* UDL_LINUX */

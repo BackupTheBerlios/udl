@@ -21,16 +21,21 @@
 #ifndef SERIALPORT_H_
 #define SERIALPORT_H_
 
-#ifdef WIN32
-   #include "windows.h"
-#else
+#include "../../config.h"
 
-#endif
+#ifdef UDL_WIN32
+   #include "windows.h"
+#endif /* UDL_WIN32 */
+
+#ifdef UDL_LINUX
+   #include <termios.h>
+#endif /* UDL_LINUX */
+
 
 #include <string>
 
 
-#ifdef WIN32
+#ifdef UDL_WIN32
    #define SERPORT_HANDLE HANDLE
 #else
    #define SERPORT_HANDLE int
@@ -45,32 +50,60 @@ public:
    SerialPort();
    virtual ~SerialPort();
 
-   virtual int Open( void );
+   virtual int Open( const std::wstring& strPort,
+                       long BaudRate = 9600,
+                       long DataBits = 8,
+                       long Parity = 0,
+                       long StopBits = 1  );
 
-   virtual int Setup( void );
+   virtual int Open(  const std::string& strPort,
+                        long BaudRate = 9600,
+                        long DataBits = 8,
+                        long Parity = 0,
+                        long StopBits = 1  );
 
    virtual int Close( void );
 
-   virtual int GetPortList( void );
+   virtual int Setup(  long BaudRate = 9600,
+                         long DataBits = 8,
+                         long Parity = 0,
+                         long StopBits = 1  );
 
-   virtual int Write( const void* pData, size_t DataSize );
+   virtual int SetReadTimeout( long timeout );
 
-   virtual int Read(  void* pData, size_t DataSize );
+   virtual int SetWriteTimeout( long timeout );
 
+   virtual int SetDtr( bool State );
+
+   virtual int SetRts( bool State );
+
+
+   virtual int Write( const void* pData, size_t cData );
+
+   virtual int Read(  void* pData, size_t cData );
+
+
+   virtual std::wstring GetLastError( void ) const { return m_LastErrorMsg; };
 
 protected:
 
-   bool BuildPortName( const char* pPortName, char* pRealPortName );
+   // Convert the options to system defined values
+   virtual int GetSystemBaud(  int BaudRate );
+   virtual int GetSystemDataBits(  int DataBits );
+   virtual int GetSystemParity(  int Parity );
+   virtual int GetSystemStopBits(  int Stopbits );
 
-   // Get the OS Defines
-//   int OsDefBaudRate( EBaudrate BaudRate );
-//   int OsDefParity( EParity Parity );
-//   int OsDefStop( EStopBits Stop );
+   virtual std::wstring BuildPortName( const std::wstring& port );
 
    SERPORT_HANDLE m_Port;
 
 private:
 
+   std::wstring m_LastErrorMsg;
+
+#ifdef UDL_LINUX
+   struct termios m_OldTio;
+#endif /* UDL_WIN32 */
 
 };
 

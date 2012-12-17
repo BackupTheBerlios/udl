@@ -59,6 +59,8 @@ private:
 
    std::wstring   m_strLibName;
    DYNLIB_HANDLE  m_LibHandle;
+
+   std::wstring   m_strLastError;
 };
 
 #endif /* DYNAMICLIB_H_ */

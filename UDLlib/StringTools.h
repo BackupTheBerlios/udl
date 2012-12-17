@@ -30,6 +30,7 @@ public:
    StringTools();
    virtual ~StringTools();
 
+   static std::wstring MbStrToWStr( const char* strIn );
    static std::wstring& MbStrToWStr( const char* strIn, std::wstring& strOut );
 
    static char* WStrToMbStr( const std::wstring& strIn, char* strOut );

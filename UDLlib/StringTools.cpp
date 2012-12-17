@@ -32,7 +32,15 @@ StringTools::~StringTools(){
 
 }
 
-std::wstring& StringTools::MbStrToWStr( const char* strIn, std::wstring& strOut ){
+std::wstring StringTools::MbStrToWStr( const char* strIn )
+{
+   std::wstring str;
+   MbStrToWStr( strIn, str );
+   return str;
+}
+
+std::wstring& StringTools::MbStrToWStr( const char* strIn, std::wstring& strOut )
+{
    size_t len = WStrLen(strIn);
    wchar_t* ws = new wchar_t[len+1];
    mbsrtowcs( ws, &strIn, len, 0 );

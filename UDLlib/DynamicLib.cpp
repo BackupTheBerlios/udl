@@ -101,12 +101,17 @@ DynamicLib::~DynamicLib()
 
 bool DynamicLib::LoadLibrary( const std::wstring& strLibPath )
 {
+   bool fRet;
    FreeLibrary();
    m_strLibName = strLibPath;
    char* s = new char[StringTools::MbStrLen(strLibPath)+1];
    m_LibHandle = dlopen( StringTools::WStrToMbStr(strLibPath, s), RTLD_LAZY);
    delete[] s;
-   return m_LibHandle != 0;
+   fRet = m_LibHandle != 0;
+   if( fRet == false ){
+      StringTools::MbStrToWStr( dlerror(), m_strLastError );
+   }
+   return fRet;
 }
 
 void DynamicLib::FreeLibrary( void )
