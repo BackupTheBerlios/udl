@@ -50,11 +50,12 @@ extern "C" {
     *
     * Return a list of supported devices.
     *
-    * @param pszNames [out] List with names e.g. "DeviceA,DeviceB".
-    * @param cBufferLength [in] The length of pszNames in Bytes.
+    * @param pszNames [in/out] List with names e.g. "DeviceA,DeviceB".
+    *                          If 0 is passed cBufferLenfth will set to the need size in Byte
+    * @param cBufferLength [in/out] The length of pszNames in bytes.
     * @return UDLMD_STATUS
     */
-   UDLMD_API UDLMD_STATUS GetDeviceNames( char* pszNames, uint32_t cBufferLength );
+   UDLMD_API UDLMD_STATUS GetDeviceNames( char* pszNames, uint32_t* cBufferLength );
 
 	/** Create an UDLMeasDev instance.
 	 *
@@ -128,11 +129,12 @@ extern "C" {
 	 * Get the Device Version (If supported)
 	 *
 	 * @param hMeasDev [in] Handle to the UDLMeasDev instance.
-	 * @param pszDeviceVer [out] Buffer for the version String.
-	 * @param cBufferLength [in] Size of the Buffer in characters.
+	 * @param pszDeviceVer [in/out] Buffer for the version String.
+	 *                              If 0 is passed cBufferLenfth will set to the need size in byte.
+	 * @param cBufferLength [in/out] Size of the Buffer in byte.
 	 * @return UDLMD_STATUS
 	 */
-	UDLMD_API UDLMD_STATUS GetDeviceVerStr( UDLMD_HANDLE hMeasDev, char *pszDeviceVer, uint32_t cBufferLength );
+	UDLMD_API UDLMD_STATUS GetDeviceVerStr( UDLMD_HANDLE hMeasDev, char *pszDeviceVer, uint32_t* cBufferLength );
 
 	/** Get the Library Version.
 	 *
@@ -146,14 +148,15 @@ extern "C" {
 
 	/** Get last Error.
 	 *
-	 * Get the last error number of the device.
-	 * See the library documentation for the error number definition.
+	 * Get the last error message of the device.
 	 *
 	 * @param hMeasDev [in] Handle to the UDLMeasDev instance.
-	 * @param pu32DevErrorNbr [out] The Error Nbr.
+	 * @param pszErrorMsg [in/out] Pointer to the buffer for the error message.
+	 *                             If 0 is passed cBufferLenfth will set to the need size in byte.
+	 * @param cBufferLength [in/out] Maximum size of the buffer in byte.
 	 * @return UDLMD_STATUS
 	 */
-	UDLMD_API UDLMD_STATUS GetLastMeasDevError( UDLMD_HANDLE hMeasDev, uint32_t*  pu32DevErrorNbr );
+	UDLMD_API UDLMD_STATUS GetLastMeasDevError( UDLMD_HANDLE hMeasDev, char* pszErrorMsg, uint32_t* cBufferLength );
 
 	/** Get Setup Information.
 	 *
@@ -167,11 +170,12 @@ extern "C" {
 	 * Seperator Sign: 	'='
 	 *
 	 * @param pszName [in] Name of the device to be queried.
-	 * @param pszSetupInfo [out] String buffer for the information.
-	 * @param cBufferLength [in] The length of pszArg.
+	 * @param pszSetupInfo [in/out] String buffer for the information.
+	 *                              If 0 is passed cBufferLenfth will set to the need size in byte
+	 * @param cBufferLength [in/out] Maximum length of the pszSetupInfo buffer.
 	 * @return UDLMD_STATUS
 	 */
-	UDLMD_API UDLMD_STATUS GetSetupInfo( const char* pszName, char* pszSetupInfo, uint32_t cBufferLength );
+	UDLMD_API UDLMD_STATUS GetDeviceInfo( const char* pszName, char* pszDeviceInfo, uint32_t* cBufferLength );
 
 }
 

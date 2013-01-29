@@ -1,6 +1,6 @@
 /*
  * UDL - Universal Data Logger
- * Copyright (C) 2010  Marco Hartung
+ * Copyright (C) 2013  Marco Hartung
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,35 +38,39 @@ class UDLMeasDevice : public UDLDevice{
 
 public:
 
+   static UDLMeasDevice* NewMeasDev( UDLDevice* pUdlDev, const std::string& strName );
+
    UDLMeasDevice();
    UDLMeasDevice( UDLDevice* pUdlDev );
 
 	virtual ~UDLMeasDevice();
 
-	virtual bool LoadDeviceLibrary( void );
-	virtual bool LoadDeviceLibrary( const std::wstring &strLibPath );
+
+	virtual bool Setup(  const std::string& strArgs );
+
+	virtual bool Setup( char *pszArg, uint32_t cArgs );
+
+	virtual bool Connect( void );
+
+	virtual bool Disconnect( void );
 
 
-	virtual UDLMD_STATUS Create( UDLMD_HANDLE* pMeasDevID, const char* pszName );
-	virtual UDLMD_STATUS Create( std::string strName );
-	// TODO: Delete instans of MeasDev m_hMeasDev before destroying dll Handle
+	virtual bool Trigger( uint32_t iChannel );
 
-	virtual UDLMD_STATUS Setup(  const std::string& strArgs );
+	virtual bool GetMeasValue( uint32_t iChannel, SMeasValue_t* pMeasVal );
 
-	virtual UDLMD_STATUS Setup( char *pszArg, uint32_t cArgs );
+	virtual bool GetDeviceVerStr( char *pszDeviceVer, uint32_t cBufferLength );
 
-	virtual UDLMD_STATUS Connect( void );
-
-	virtual UDLMD_STATUS Disconnect( void );
-
-
-	virtual UDLMD_STATUS Trigger( uint32_t iChannel );
-
-	virtual UDLMD_STATUS GetMeasValue( uint32_t iChannel, SMeasValue_t* pMeasVal );
-
+	virtual bool GetLastErrorMessage( std::string& strLastError );
 
 protected:
 
+	virtual bool LoadDeviceLibrary( void );
+	virtual bool LoadDeviceLibrary( const std::wstring &strLibPath );
+
+	virtual bool Create( UDLMD_HANDLE* pMeasDevID, const char* pszName );
+	virtual bool Create( std::string strName );
+	// TODO: Delete instans of MeasDev m_hMeasDev before destroying dll Handle
 
 private:
 
@@ -82,6 +86,8 @@ private:
 	typedef UDLMD_STATUS (*PFN_DISCONNECT)( UDLMD_HANDLE MeasDevID );
 	typedef UDLMD_STATUS (*PFN_TRIGGER)( UDLMD_HANDLE MeasDevID, uint32_t iChannel );
 	typedef UDLMD_STATUS (*PFN_GETMEASVALUE)( UDLMD_HANDLE MeasDevID, uint32_t iChannel, SMeasValue_t* pMeasVal  );
+	typedef UDLMD_STATUS (*PFN_GETDEVICEVERSTR)( UDLMD_HANDLE hMeasDev, char *pszDeviceVer, uint32_t cBufferLength );
+	typedef UDLMD_STATUS (*PFN_GETLASTMEASDEVERROR)( UDLMD_HANDLE hMeasDev, char* pszErrorMsg, uint32_t* cBufferLength );
 
 	PFN_CREATE                m_pfnCreate;
 	PFN_DELETE                m_pfnDelete;
@@ -90,6 +96,8 @@ private:
 	PFN_DISCONNECT            m_pfnDisconnect;
 	PFN_TRIGGER               m_pfnTrigger;
 	PFN_GETMEASVALUE          m_pfnGetMeasValue;
+	PFN_GETDEVICEVERSTR       m_pfnGetDeviceVerStr;
+	PFN_GETLASTMEASDEVERROR   m_pfnGetLastMeasDevError;
 
 };
 

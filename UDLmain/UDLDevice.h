@@ -1,6 +1,6 @@
 /*
  * UDL - Universal Data Logger
- * Copyright (C) 2012 Marco Hartung
+ * Copyright (C) 2013 Marco Hartung
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,30 +42,26 @@ public:
 	virtual bool LoadDeviceLibrary( const std::wstring &strLibPath );
 
 
-   virtual UDLMD_STATUS GetLibraryVer( uint32_t*  pu32APIVersion, uint32_t*  pu32DLLVersion );
+   virtual bool GetLibraryVer( uint32_t*  pu32APIVersion, uint32_t*  pu32DLLVersion );
 
-   virtual UDLMD_STATUS GetDeviceNames( char *pszNames, uint32_t c );
+   virtual bool GetDeviceNames( char *pszNames, uint32_t c );
 
-	virtual UDLMD_STATUS GetDeviceVerStr( char *pszDeviceVer, uint32_t cBufferLength );
+   virtual bool GetDeviceInfo(  const std::string& strName, std::string& strSetupInfo );
 
-   virtual UDLMD_STATUS GetDeviceSetupInfo(  const std::string& strName, std::string& strSetupInfo );
-
-   virtual DynamicLib GetLib( void ) {return m_Lib;};
+   virtual DynamicLib GetLib( void ) { return m_Lib; };
 
 
 protected:
 
 	virtual bool LoadFunction( void** pfn, const std::string &FunctionName );
 
+	typedef UDLMD_STATUS (*PFN_GETLIBRARYVER)( uint32_t*  pu32APIVerion, uint32_t*  pu32LibVerion );
    typedef UDLMD_STATUS (*PFN_GETDEVICENAMES)( char *pszNames, uint32_t cBufferLength );
-   typedef UDLMD_STATUS (*PFN_GETLIBRARYVER)( uint32_t*  pu32APIVerion, uint32_t*  pu32LibVerion );
-   typedef UDLMD_STATUS (*PFN_GETDEVICEVERSTR)( char *pszDeviceVer, uint32_t cBufferLength );
-   typedef UDLMD_STATUS (*PFN_GETDEVICESETUPINFO)( const char* pszName, char* pszSetupInfo, uint32_t cBufferLength );
+   typedef UDLMD_STATUS (*PFN_GETDEVICENFO)( const char* pszName, char* pszDeviceInfo, uint32_t cBufferLength );
 
    PFN_GETLIBRARYVER         m_pfnGetLibraryVer;
-   PFN_GETDEVICEVERSTR       m_pfnGetDeviceVerStr;
-   PFN_GETDEVICESETUPINFO    m_pfnGetDeviceSetupInfo;
    PFN_GETDEVICENAMES        m_pfnGetDevNames;
+   PFN_GETDEVICENFO          m_pfnGetDeviceInfo;
 
    DynamicLib                m_Lib;
 

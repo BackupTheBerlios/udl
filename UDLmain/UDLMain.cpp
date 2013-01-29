@@ -116,7 +116,7 @@ int main( int argc, char *argv[] ){
 	for( size_t i = 0; i < Settings.MeasDev().size(); i++ ){
 		UdlOut::Msg << "(" << Settings.MeasDev()[i].NiceName() << ")... ";
 
-		UDLMD_STATUS result = -1;
+		bool result = false;
 		std::wstring str;
 		StringTools::MbStrToWStr( Settings.MeasDev()[i].MeasDev().c_str() , str );
 		UDLMeasDevice* pUDLDev = Devices.GetDevice( str );
@@ -128,12 +128,15 @@ int main( int argc, char *argv[] ){
 			UdlOut::Error << "Failed to load: " << Settings.MeasDev()[i].MeasDev() << UdlOut::EndLine;
 		}
 
-		if( result == 0 ){
+		if( result ){
 		   pUDLTask->SetDevice( pUDLDev );
 			UdlOut::Msg << "done" << UdlOut::EndLine;
 		}
 		else{
+		   std::string ErrMsg;
+		   pUDLDev->GetLastErrorMessage( ErrMsg );
 			UdlOut::Msg << "failed!" << UdlOut::EndLine;
+			UdlOut::Msg << ErrMsg << UdlOut::EndLine;
 			return EXIT_FAILURE;
 		}
 	}

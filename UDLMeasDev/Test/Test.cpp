@@ -26,6 +26,7 @@
 #include "Test.h"
 #include <map>
 #include <cstring>
+#include <string>
 
 
 static std::map< uint32_t, UdlMdTest*>  gDevices;
@@ -33,9 +34,15 @@ static uint32_t                         gcDevices;  //!< Number of ever created 
 
 extern "C" {
 
-   UDLMD_API UDLMD_STATUS GetDeviceNames( char* pszNames, uint32_t cBufferLength ){
-      pszNames[0] = '\0';
-      strncpy( pszNames, "UDL-Test-MD,UDL-Test-MD2", cBufferLength );
+   UDLMD_API UDLMD_STATUS GetDeviceNames( char* pszNames, uint32_t* cBufferLength ){
+      const std::string strDevList = "UDL-Test-MD,UDL-Test-MD2";
+
+      if( pszNames == 0 ){
+         *cBufferLength = strDevList.length();
+      }
+      else{
+         strncpy( pszNames, strDevList.c_str(), *cBufferLength );
+      }
       return MD_NO_ERROR;
    }
 
@@ -110,10 +117,10 @@ extern "C" {
       return MD_INVALIDE_HANDLE;
    }
 
-   UDLMD_API UDLMD_STATUS GetDeviceVerStr( UDLMD_HANDLE hMeasDev, char *pszDeviceVer, uint32_t cBufferLength ){
+   UDLMD_API UDLMD_STATUS GetDeviceVerStr( UDLMD_HANDLE hMeasDev, char *pszDeviceVer, uint32_t* cBufferLength ){
       UdlMdTest* pDev = gDevices[hMeasDev];
       if( pDev ){
-         return pDev->GetDeviceVerStr( pszDeviceVer, cBufferLength );
+         return pDev->GetDeviceVerStr( pszDeviceVer, *cBufferLength );
       }
       return MD_INVALIDE_HANDLE;
    }
@@ -126,9 +133,8 @@ extern "C" {
       return MD_NO_ERROR;
    }
 
-   UDLMD_API UDLMD_STATUS GetLastMeasDevError( UDLMD_HANDLE hMeasDev, uint32_t*  pu32DevErrorNbr ){
+   UDLMD_API UDLMD_STATUS GetLastMeasDevError( UDLMD_HANDLE hMeasDev, char* pszErrorMsg, uint32_t* cBufferLength ){
 
-      *pu32DevErrorNbr = UdlMdTest::EALLOK;
       return MD_NO_ERROR;
    }
 

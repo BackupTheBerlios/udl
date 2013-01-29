@@ -25,8 +25,7 @@
 UDLDevice::UDLDevice() {
    m_pfnGetDevNames = 0;
    m_pfnGetLibraryVer = 0;
-   m_pfnGetDeviceVerStr = 0;
-   m_pfnGetDeviceSetupInfo = 0;
+   m_pfnGetDeviceInfo = 0;
 }
 
 UDLDevice::~UDLDevice(){
@@ -40,7 +39,7 @@ bool UDLDevice::LoadDeviceLibrary( const std::wstring &strLibPath ){
 
       LoadFunction( (void**)&m_pfnGetDevNames, "GetDeviceNames" );
       LoadFunction( (void**)&m_pfnGetLibraryVer, "GetLibraryVer" );
-      LoadFunction( (void**)&m_pfnGetDeviceVerStr, "GetDeviceVerStr" );
+
    }
    else{
       UdlOut::Error << "Can not load library!" /* << strLibPath */<< std::endl;
@@ -51,51 +50,42 @@ bool UDLDevice::LoadDeviceLibrary( const std::wstring &strLibPath ){
 }
 
 
-UDLMD_STATUS UDLDevice::GetLibraryVer(uint32_t*  pu32APIVersion, uint32_t*  pu32LibVersion )
+bool UDLDevice::GetLibraryVer(uint32_t*  pu32APIVersion, uint32_t*  pu32LibVersion )
 {
-   uint32_t Ret = 0;
+   bool fRet = false;
    if( m_pfnGetLibraryVer ){
-      Ret = m_pfnGetLibraryVer( pu32APIVersion, pu32LibVersion );
+      fRet = ( m_pfnGetLibraryVer( pu32APIVersion, pu32LibVersion ) == MD_NO_ERROR );
    }
-   return Ret;
+   return fRet;
 }
 
 
-UDLMD_STATUS UDLDevice::GetDeviceVerStr( char *pszDeviceVer, uint32_t cBufferLength )
+bool UDLDevice::GetDeviceInfo(  const std::string& strName,
+                                    std::string& strSetupInfo )
 {
-   uint32_t Ret = 0;
-   if( m_pfnGetDeviceVerStr ){
-      Ret = m_pfnGetDeviceVerStr( pszDeviceVer, cBufferLength );
-   }
-   return Ret;
-}
-
-UDLMD_STATUS UDLDevice::GetDeviceSetupInfo(  const std::string& strName,
-                                                     std::string& strSetupInfo )
-{
-   uint32_t Ret = 0;
+   bool fRet = false;
    strSetupInfo.clear();
-   if( m_pfnGetDeviceSetupInfo ){
+   if( m_pfnGetDeviceInfo ){
       char s[10000];
-      Ret = m_pfnGetDeviceSetupInfo( strName.c_str(), s , 1000 );
+      fRet = ( m_pfnGetDeviceInfo( strName.c_str(), s , 1000 ) == MD_NO_ERROR );
       strSetupInfo = s;
    }
-   return Ret;
+   return fRet;
 }
 
 
-UDLMD_STATUS UDLDevice::GetDeviceNames( char *pszNames, uint32_t c ){
-   uint32_t Ret = 0;
-    if(m_pfnGetDevNames){
-       Ret = m_pfnGetDevNames(pszNames, c);
+bool UDLDevice::GetDeviceNames( char *pszNames, uint32_t c )
+{
+   bool fRet = false;
+    if( m_pfnGetDevNames ){
+       fRet = ( m_pfnGetDevNames( pszNames, c ) == MD_NO_ERROR );
     }
-    return Ret;
+    return fRet;
 }
 
 
-bool UDLDevice::LoadFunction( void** pfn, const std::string &FunctionName ){
-
-
+bool UDLDevice::LoadFunction( void** pfn, const std::string &FunctionName )
+{
    *pfn  =  m_Lib.GetFunctionAddress( FunctionName );
    if( !(*pfn) ){
       std::string s;
@@ -103,8 +93,5 @@ bool UDLDevice::LoadFunction( void** pfn, const std::string &FunctionName ){
       UdlOut::Error << "Can not load function! : " << s << " : " << FunctionName << std::endl;
       return false;
    }
-
    return true;
 }
-
-

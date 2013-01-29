@@ -84,14 +84,20 @@ UDLMeasDevice* UDLDevices::GetDevice( const std::wstring& strName )
 
    if( it != m_strDevMap.end() ){
 
-      pMd = new UDLMeasDevice( it->second );
+      std::string s;
+      StringTools::WStrToMbStr( strName, s );
+      pMd = UDLMeasDevice::NewMeasDev( it->second, s );
+
+      //pMd = new UDLMeasDevice( it->second, strName );
      // UDLMeasDevice* pMd = new UDLMeasDevice();
+     /*
       if( pMd ){
        //  pMd->LoadDeviceLibrary( it->second->GetLib().GetLibraryName() );
          std::string s;
          StringTools::WStrToMbStr( strName, s );
          pMd->Create( s );
       }
+      */
    }
    return pMd;
 }

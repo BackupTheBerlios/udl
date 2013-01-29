@@ -52,9 +52,9 @@ public:
 
 	virtual UDLMD_STATUS GetMeasValue( uint32_t iChannel, SMeasValue_t* pMeasVal );
 
-	virtual UDLMD_STATUS GetDeviceVerStr( char *pszDeviceVer, uint32_t cBufferLength );
+	virtual UDLMD_STATUS GetDeviceVerStr( char *pszDeviceVer, uint32_t* cBufferLength );
 
-	virtual UDLMD_STATUS GetSetupInfo( char* pszArg, uint32_t cArgs );
+	virtual std::string GetLastErrorMsg( void ) const { return m_strLastError; };
 
 	bool                           m_fExitThread;
 
@@ -70,11 +70,14 @@ private:
 
 	SMeasValue_t   m_TrigMeasVall;
 	SMeasValue_t   m_ActMeasVall;
+	bool          m_MeasValValid;
+
+	std::string    m_strLastError;
 
 	std::string    m_strSerialPort;
 	SerialPort     m_Port;
 
-	std::thread   m_MeasThread;
+	std::thread    m_MeasThread;
 
 };
 
