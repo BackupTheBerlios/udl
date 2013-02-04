@@ -49,12 +49,8 @@ void UDLDevices::LoadModules( std::wstring strPath ){
       }
 
       if( fMdCreated ){
-         pUDLDev->GetDeviceNames( names, sizeof(names) );
-
-         std::wstring  strNames;
-         std::vector<std::wstring> NamesList;
-         StringTools::MbStrToWStr( names, strNames );
-         StringTools::Split( strNames, L",", NamesList  );
+         std::vector<std::string> NamesList;
+         pUDLDev->GetDeviceNames( NamesList );
 
          for (int n = 0; n < NamesList.size(); n++ ){
 
@@ -66,9 +62,9 @@ void UDLDevices::LoadModules( std::wstring strPath ){
    }
 }
 
-void UDLDevices::GetDeviceNames( std::vector<std::wstring>& DevNames )
+void UDLDevices::GetDeviceNames( std::vector<std::string>& DevNames )
 {
-   std::map<std::wstring, UDLDevice*>::const_iterator it;
+   std::map<std::string, UDLDevice*>::const_iterator it;
    DevNames.clear();
 
    for( it = m_strDevMap.begin(); it != m_strDevMap.end(); it++ ){
@@ -77,16 +73,14 @@ void UDLDevices::GetDeviceNames( std::vector<std::wstring>& DevNames )
 }
 
 
-UDLMeasDevice* UDLDevices::GetDevice( const std::wstring& strName )
+UDLMeasDevice* UDLDevices::GetDevice( const std::string& strName )
 {
-   std::map<std::wstring, UDLDevice*>::const_iterator it = m_strDevMap.find( strName );
+   std::map<std::string, UDLDevice*>::const_iterator it = m_strDevMap.find( strName );
    UDLMeasDevice* pMd = 0;
 
    if( it != m_strDevMap.end() ){
 
-      std::string s;
-      StringTools::WStrToMbStr( strName, s );
-      pMd = UDLMeasDevice::NewMeasDev( it->second, s );
+      pMd = UDLMeasDevice::NewMeasDev( it->second, strName );
 
       //pMd = new UDLMeasDevice( it->second, strName );
      // UDLMeasDevice* pMd = new UDLMeasDevice();

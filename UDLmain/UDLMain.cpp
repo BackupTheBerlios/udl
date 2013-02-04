@@ -116,27 +116,26 @@ int main( int argc, char *argv[] ){
 	for( size_t i = 0; i < Settings.MeasDev().size(); i++ ){
 		UdlOut::Msg << "(" << Settings.MeasDev()[i].NiceName() << ")... ";
 
-		bool result = false;
-		std::wstring str;
-		StringTools::MbStrToWStr( Settings.MeasDev()[i].MeasDev().c_str() , str );
-		UDLMeasDevice* pUDLDev = Devices.GetDevice( str );
+		UDLMeasDevice* pUDLDev = Devices.GetDevice( Settings.MeasDev()[i].DevName() );
 		if( pUDLDev ){
+		   bool result;
          result = pUDLDev->Setup( Settings.MeasDev()[i].Args() );
          result = pUDLDev->Connect();
-		}
-		else{
-			UdlOut::Error << "Failed to load: " << Settings.MeasDev()[i].MeasDev() << UdlOut::EndLine;
-		}
 
-		if( result ){
-		   pUDLTask->SetDevice( pUDLDev );
-			UdlOut::Msg << "done" << UdlOut::EndLine;
+         if( result ){
+            pUDLTask->SetDevice( pUDLDev );
+            UdlOut::Msg << "done" << UdlOut::EndLine;
+         }
+         else{
+            std::string ErrMsg;
+            pUDLDev->GetLastErrorMessage( ErrMsg );
+            UdlOut::Error << "failed!" << UdlOut::EndLine;
+            UdlOut::Error << ErrMsg << UdlOut::EndLine;
+            return EXIT_FAILURE;
+         }
 		}
 		else{
-		   std::string ErrMsg;
-		   pUDLDev->GetLastErrorMessage( ErrMsg );
-			UdlOut::Msg << "failed!" << UdlOut::EndLine;
-			UdlOut::Msg << ErrMsg << UdlOut::EndLine;
+			UdlOut::Error << "Failed to load: " << Settings.MeasDev()[i].DevName() << UdlOut::EndLine;
 			return EXIT_FAILURE;
 		}
 	}
@@ -172,12 +171,12 @@ void ListDevices( void ){
    System::GetDevicesDir( strModulePath );
    Devices.LoadModules( strModulePath );
 
-   std::vector<std::wstring> DevNames;
+   std::vector<std::string> DevNames;
    Devices.GetDeviceNames( DevNames );
 
    std::wcout << L"List of all available devices:" << std::endl;
    for( size_t i = 0; i < DevNames.size(); i++ ){
-      std::wcout << DevNames[i] << std::endl;
+      std::cout << DevNames[i] << std::endl;
    }
 
 }

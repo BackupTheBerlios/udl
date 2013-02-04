@@ -31,18 +31,18 @@ class UdlMdSettings {
 public:
 
 	UdlMdSettings( const std::string& NiceName,
-			       const std::string& MeasDev,
+			       const std::string& DevName,
 			       const std::string& Args )
 	{
 		mNiceName = NiceName;
+		mDevName = DevName;
 		mArgs = Args;
-		mMeasDev = MeasDev;
 	};
 	~UdlMdSettings(){};
 
 	const std::string& NiceName( void ) const { return mNiceName; };
 	const std::string& Args( void ) const { return mArgs; };
-	const std::string& MeasDev( void ) const { return mMeasDev; };
+	const std::string& DevName( void ) const { return mDevName; };
 
 protected:
 
@@ -50,7 +50,7 @@ private:
 
 	std::string mArgs;
 	std::string mNiceName;
-	std::string mMeasDev;
+	std::string mDevName;
 };
 
 class UdlSettings {

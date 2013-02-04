@@ -74,7 +74,7 @@ bool UDLDevice::GetDeviceInfo(  const std::string& strName,
 }
 
 
-bool UDLDevice::GetDeviceNames( char *pszNames, uint32_t c )
+bool UDLDevice::GetDeviceNames( char *pszNames, uint32_t* c )
 {
    bool fRet = false;
     if( m_pfnGetDevNames ){
@@ -83,6 +83,25 @@ bool UDLDevice::GetDeviceNames( char *pszNames, uint32_t c )
     return fRet;
 }
 
+bool UDLDevice::GetDeviceNames( std::vector<std::string>& Names )
+{
+
+   bool fRet = false;
+   uint32_t cByteBuffer = 0;
+
+   fRet = GetDeviceNames( 0, &cByteBuffer );
+   if( fRet ){
+      cByteBuffer++;
+      char szNames[cByteBuffer];
+      fRet = GetDeviceNames( szNames, &cByteBuffer );
+      if( fRet ){
+         StringTools::Split( szNames, ",", Names );
+      }
+   }
+
+
+   return fRet;
+}
 
 bool UDLDevice::LoadFunction( void** pfn, const std::string &FunctionName )
 {

@@ -30,6 +30,7 @@
 #include "../UDLMeasDev/MeasDevTypes.h"
 #include "../UDLlib/DynamicLib.h"
 #include <string>
+#include <vector>
 
 class UDLDevice {
 
@@ -44,7 +45,7 @@ public:
 
    virtual bool GetLibraryVer( uint32_t*  pu32APIVersion, uint32_t*  pu32DLLVersion );
 
-   virtual bool GetDeviceNames( char *pszNames, uint32_t c );
+   virtual bool GetDeviceNames( std::vector<std::string>& Names );
 
    virtual bool GetDeviceInfo(  const std::string& strName, std::string& strSetupInfo );
 
@@ -53,10 +54,12 @@ public:
 
 protected:
 
+   virtual bool GetDeviceNames( char* pszNames, uint32_t* c );
+
 	virtual bool LoadFunction( void** pfn, const std::string &FunctionName );
 
 	typedef UDLMD_STATUS (*PFN_GETLIBRARYVER)( uint32_t*  pu32APIVerion, uint32_t*  pu32LibVerion );
-   typedef UDLMD_STATUS (*PFN_GETDEVICENAMES)( char *pszNames, uint32_t cBufferLength );
+   typedef UDLMD_STATUS (*PFN_GETDEVICENAMES)( char *pszNames, uint32_t* cBufferLength );
    typedef UDLMD_STATUS (*PFN_GETDEVICENFO)( const char* pszName, char* pszDeviceInfo, uint32_t cBufferLength );
 
    PFN_GETLIBRARYVER         m_pfnGetLibraryVer;

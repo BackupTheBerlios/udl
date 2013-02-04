@@ -36,15 +36,15 @@ public:
 
    void LoadModules( std::wstring strPath );
 
-   void GetDeviceNames( std::vector<std::wstring>& DevNames );
+   void GetDeviceNames( std::vector<std::string>& DevNames );
 
-   UDLMeasDevice* GetDevice( const std::wstring& strName );
+   UDLMeasDevice* GetDevice( const std::string& strName );
 
 protected:
 
 private:
 
-   std::map<std::wstring,UDLDevice*> m_strDevMap;
+   std::map<std::string,UDLDevice*> m_strDevMap;
 };
 
 
