@@ -20,7 +20,6 @@
 
 #include "UdlSettings.h"
 #include "UdlSettingsFile.h"
-#include "UdlStdOut.h"
 
 #include <sstream>
 #include <map>
@@ -36,16 +35,11 @@ UdlSettings::~UdlSettings()
 bool UdlSettings::ParseConfigFile( void ){
 
 	UdlSettingsFile sf;
-	UdlOut::Msg << "Reading Config-File: " << mConfigFile << UdlOut::EndLine;
 	sf.Parse( mConfigFile );
 
 	sf.GetValueAsLong( "Measurement" , "SampleTime", m_SampleTimeMs );
 	sf.GetValueAsLong( "Measurement" , "SampleCount", m_SampleCount );
 	sf.GetValueAsString( "Out" , "OutFileName", mOutFile );
-
-	UdlOut::Info << "SampleTime: " << m_SampleTimeMs << UdlOut::EndLine;
-	UdlOut::Info << "SampleCount: " << m_SampleCount << UdlOut::EndLine;
-	UdlOut::Info << "OutFileName: " << mOutFile << UdlOut::EndLine;
 
 
 	// Read MeasDevIdentifier
@@ -58,7 +52,7 @@ bool UdlSettings::ParseConfigFile( void ){
 	   const UdlSettingsSection* pSection;
 
 		// Scan config data for devices
-		UdlOut::Info << "Scan for config of: " << m_DevIdentifier[i] << UdlOut::EndLine;
+	   // TODO: load all config not only known ones
 		pSection = sf.GetSection( m_DevIdentifier[i] );
 		if( pSection ){
 			std::string strSection;
@@ -66,8 +60,6 @@ bool UdlSettings::ParseConfigFile( void ){
 			std::string strNiceName;
 
 			sf.GetSectionAsString( pSection, strSection );
-			//UdlOut::Info << "Config: " << strMeasDev << UdlOut::EndLine;
-			//UdlOut::Info << strSection << UdlOut::EndLine;
 
 			sf.GetValueAsString( m_DevIdentifier[i], "MeasDev", strMeasDev );
 			sf.GetValueAsString( m_DevIdentifier[i], "NiceName", strNiceName );
@@ -76,5 +68,6 @@ bool UdlSettings::ParseConfigFile( void ){
 		}
 	}
 
+	return true;
 }
 

@@ -98,8 +98,28 @@ int main( int argc, char *argv[] ){
           return EXIT_FAILURE;
    }
 
+
    Settings.SetConfigFile( strConfigFile );
-   Settings.ParseConfigFile();
+   if( Settings.ParseConfigFile() == false ){
+      UdlOut::Error << "Failed to parse: " << strConfigFile << UdlOut::EndLine;
+      return EXIT_FAILURE;
+   }
+   // Print verbose configuration info
+   UdlOut::Info << "File: " << strConfigFile << UdlOut::EndLine;
+   // Section Measurement
+   UdlOut::Info << "SampleTime: " << Settings.SampleTimeMs() << UdlOut::EndLine;
+   UdlOut::Info << "SampleCount: " << Settings.SampleCount() << UdlOut::EndLine;
+   // Section Out
+   UdlOut::Info << "OutFileName: " << Settings.OutFile() << UdlOut::EndLine;
+   // MeasDevices
+   UdlOut::Info << Settings.MeasDev().size() << " MeasDevices:" << UdlOut::EndLine;
+   std::vector<UdlMdSettings>::const_iterator it;
+   for( it = Settings.MeasDev().begin(); it != Settings.MeasDev().end(); it++ ){
+      UdlOut::Info << it->NiceName() << UdlOut::EndLine;
+      UdlOut::Info << "\t" << it->DevName() << UdlOut::EndLine;
+      // TODO: print args nice
+      UdlOut::Info << "\t" << it->Args() << UdlOut::EndLine;
+   }
 
    // scan for UDL supported devices
 	// and load device modules
@@ -112,31 +132,38 @@ int main( int argc, char *argv[] ){
 	UDLTask* pUDLTask = new UDLTask;
 
 	// Load/Setup Devices
-	UdlOut::Info << "Load/Setup Devices" << UdlOut::EndLine;
+	UdlOut::Msg << "Load Devices:" << UdlOut::EndLine;
 	for( size_t i = 0; i < Settings.MeasDev().size(); i++ ){
-		UdlOut::Msg << "(" << Settings.MeasDev()[i].NiceName() << ")... ";
+		UdlOut::Msg << "(" << Settings.MeasDev()[i].NiceName() << ")... "; UdlOut::Msg.flush();
 
+		bool result = false;
+		std::string ErrMsg;
 		UDLMeasDevice* pUDLDev = Devices.GetDevice( Settings.MeasDev()[i].DevName() );
 		if( pUDLDev ){
-		   bool result;
-         result = pUDLDev->Setup( Settings.MeasDev()[i].Args() );
-         result = pUDLDev->Connect();
+		   result = pUDLDev->Setup( Settings.MeasDev()[i].Args() );
+         if( result ){
+            result = pUDLDev->Connect();
+         }
 
          if( result ){
             pUDLTask->SetDevice( pUDLDev );
-            UdlOut::Msg << "done" << UdlOut::EndLine;
          }
          else{
-            std::string ErrMsg;
             pUDLDev->GetLastErrorMessage( ErrMsg );
-            UdlOut::Error << "failed!" << UdlOut::EndLine;
-            UdlOut::Error << ErrMsg << UdlOut::EndLine;
-            return EXIT_FAILURE;
          }
 		}
 		else{
-			UdlOut::Error << "Failed to load: " << Settings.MeasDev()[i].DevName() << UdlOut::EndLine;
-			return EXIT_FAILURE;
+		   ErrMsg = "Failed to load: ";
+		   ErrMsg += Settings.MeasDev()[i].DevName();
+		}
+
+		if( result != false ){
+		   UdlOut::Msg << "done" << UdlOut::EndLine;
+		}
+		else{
+		   UdlOut::Error << "failed!" << UdlOut::EndLine;
+		   UdlOut::Error << ErrMsg << UdlOut::EndLine;
+		   return EXIT_FAILURE;
 		}
 	}
 
@@ -144,15 +171,19 @@ int main( int argc, char *argv[] ){
 	pUDLTask->SetSampleCount( Settings.SampleCount() );
 
 	// Config DataBase
-	UdlOut::Info << "Config DataBase" << UdlOut::EndLine;
 	UdlDbCsv* pUdlDb = new UdlDbCsv;
 	std::vector<std::string> nn;
 	Settings.MesDevNiceNames( nn );
 	pUdlDb->SetMdNames( nn );
-	pUdlDb->CreateDb( Settings.OutFile() );
+	if( pUdlDb->CreateDb( Settings.OutFile() ) != false ){
+	   UdlOut::Msg << "Write data to: " << Settings.OutFile() << UdlOut::EndLine;
+	}
+	else{
+	   UdlOut::Error << "Failed to open: " << Settings.OutFile()  << UdlOut::EndLine;
+	   return EXIT_FAILURE;
+	}
 
 	pUDLTask->SetDataBase( pUdlDb );
-
 	pUDLTask->Start();
 
 	// TODO: Start task as thread and do here some interactive stuff (break, stop,)
