@@ -47,6 +47,7 @@ const wchar_t* Redist( void );
 const wchar_t* Warranty( void );
 
 void ListDevices( void );
+void ListDeviceOptions( const std::string& DevName );
 
 int main( int argc, char *argv[] ){
    
@@ -80,8 +81,15 @@ int main( int argc, char *argv[] ){
          ListDevices();
          return EXIT_SUCCESS;
       }
+      if( ops >> OptionPresent('o', "list-options" ) ){
+         std::string strDevName;
+         ops >> Option('o', "list-options", strDevName );
+         ListDeviceOptions( strDevName );
+         return EXIT_SUCCESS;
+      }
 
-      // Verbosite 0=Quiet - 3=Verbose
+
+      // Verbosite 0=Quiet - 3=Verbose--
       ops >> Option( 'V', "Verbose", Verbose, 2 );
       if( UdlOut::SetVerbosity( Verbose ) != false ){
          UdlOut::Info << "Verbosity: " << Verbose << UdlOut::EndLine;
@@ -210,6 +218,30 @@ void ListDevices( void ){
       std::cout << DevNames[i] << std::endl;
    }
 
+}
+
+void ListDeviceOptions( const std::string& DevName ){
+
+   UDLDevices Devices;
+   std::wstring strModulePath;
+   System::GetDevicesDir( strModulePath );
+   Devices.LoadModules( strModulePath );
+
+   UDLMeasDevice* pDev = Devices.GetDevice( DevName );
+
+   if( pDev ){
+      std::vector<UDLDevice::DeviceOptions_t> opt;
+      pDev->GetDeviceOptions( DevName, opt );
+
+      UdlOut::Msg << "Options of device \"" << DevName << "\":" << UdlOut::EndLine;
+      std::vector<UDLDevice::DeviceOptions_t>::const_iterator it;
+      for( it = opt.begin(); it !=  opt.end(); it++ ){
+         UdlOut::Msg << "Name         :" << it->Name << UdlOut::EndLine;
+         UdlOut::Msg << "Default value:" << it->DefaultValue << UdlOut::EndLine;
+         UdlOut::Msg << "Comment      :" << it->Comment << UdlOut::EndLine;
+         UdlOut::Msg << UdlOut::EndLine;
+       }
+   }
 }
 
 const wchar_t* Help( void ){

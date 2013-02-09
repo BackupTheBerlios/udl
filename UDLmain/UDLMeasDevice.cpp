@@ -79,6 +79,9 @@ UDLMeasDevice* UDLMeasDevice::NewMeasDev( UDLDevice* pUdlDev, const std::string&
 bool UDLMeasDevice::LoadDeviceLibrary( void ){
 
    LoadFunction( (void**)&m_pfnGetDevNames, "GetDeviceNames" );
+   LoadFunction( (void**)&m_pfnGetLibraryVer, "GetLibraryVer" );
+   LoadFunction( (void**)&m_pfnGetDeviceInfo, "GetDeviceInfo" );
+
    LoadFunction( (void**)&m_pfnCreate, "Create" );
    LoadFunction( (void**)&m_pfnDelete, "Delete" );
    LoadFunction( (void**)&m_pfnSetup, "Setup" );
@@ -86,7 +89,6 @@ bool UDLMeasDevice::LoadDeviceLibrary( void ){
    LoadFunction( (void**)&m_pfnDisconnect, "Disconnect" );
    LoadFunction( (void**)&m_pfnTrigger, "Trigger" );
    LoadFunction( (void**)&m_pfnGetMeasValue, "GetMeasValue"  );
-   LoadFunction( (void**)&m_pfnGetLibraryVer, "GetLibraryVer" );
    LoadFunction( (void**)&m_pfnGetDeviceVerStr, "GetDeviceVerStr" );
    LoadFunction( (void**)&m_pfnGetLastMeasDevError, "GetLastMeasDevError" );
 

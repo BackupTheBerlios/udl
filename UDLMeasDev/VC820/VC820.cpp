@@ -162,17 +162,15 @@ extern "C" {
 
    UDLMD_API UDLMD_STATUS GetDeviceInfo( const char* pszName, char* pszDeviceInfo, uint32_t* cBufferLength )
    {
-      //const std::string szDevInfo = "#Name of used Port e.g. COM1 or tty1\nPort=COM1";
 
    static const char szDevInfo[] = R"(
 <?xml version="1.0" encoding="UTF-8"?>
 <DeviceInfo>
   <DeviceName>NAME</DeviceName>
-    <SetupParameter>
-      <Port>
-        <Description>Name of used Port e.g. COM1 or tty1</Description>
-        <DefaultValue>COM1</DefaultValue>
-      </Port>
+  <SetupParameter>
+    <Name>Port</Name>
+    <Description>Name of used Port e.g. COM1 or tty1</Description>
+    <DefaultValue>COM1</DefaultValue>
   </SetupParameter>
 </DeviceInfo>
 )";

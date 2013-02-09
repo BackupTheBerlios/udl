@@ -138,8 +138,17 @@ extern "C" {
       return MD_NO_ERROR;
    }
 
-   UDLMD_API UDLMD_STATUS GetSetupInfo( const char* pszName, char* pszSetupInfo, uint32_t cBufferLength ){
-      strncpy( pszSetupInfo, "#No options available for this module.", cBufferLength );
+   UDLMD_API UDLMD_STATUS GetDeviceInfo( const char* pszName, char* pszDeviceInfo, uint32_t* cBufferLength )
+   {
+
+   static const char szDevInfo[] = R"( <?xml version="1.0" encoding="UTF-8"?><DeviceInfo></DeviceInfo> )";
+
+      if( pszDeviceInfo == 0 ){
+         *cBufferLength = sizeof( szDevInfo );
+      }
+      else{
+         strncpy( pszDeviceInfo, szDevInfo, *cBufferLength );
+      }
       return MD_NO_ERROR;
    }
 }

@@ -36,6 +36,14 @@ class UDLDevice {
 
 public:
 
+   struct DeviceOptions_t {
+      std::string Name;
+      std::string Comment;
+      std::string DefaultValue;
+      int Type; // 0 = string; 1 = integer;
+   };
+
+
 	UDLDevice();
 
 	virtual ~UDLDevice();
@@ -47,7 +55,9 @@ public:
 
    virtual bool GetDeviceNames( std::vector<std::string>& Names );
 
-   virtual bool GetDeviceInfo(  const std::string& strName, std::string& strSetupInfo );
+   virtual bool GetDeviceInfo(  const std::string& strName, std::string& strDeviceInfo );
+
+   virtual bool GetDeviceOptions( const std::string& strName, std::vector<DeviceOptions_t>& Opt );
 
    virtual DynamicLib GetLib( void ) { return m_Lib; };
 
@@ -55,12 +65,13 @@ public:
 protected:
 
    virtual bool GetDeviceNames( char* pszNames, uint32_t* c );
+   virtual bool GetDeviceInfo( const char* pszName, char* pszDeviceInfo, uint32_t* cDeviceInfo );
 
 	virtual bool LoadFunction( void** pfn, const std::string &FunctionName );
 
 	typedef UDLMD_STATUS (*PFN_GETLIBRARYVER)( uint32_t*  pu32APIVerion, uint32_t*  pu32LibVerion );
    typedef UDLMD_STATUS (*PFN_GETDEVICENAMES)( char *pszNames, uint32_t* cBufferLength );
-   typedef UDLMD_STATUS (*PFN_GETDEVICENFO)( const char* pszName, char* pszDeviceInfo, uint32_t cBufferLength );
+   typedef UDLMD_STATUS (*PFN_GETDEVICENFO)( const char* pszName, char* pszDeviceInfo, uint32_t* cBufferLength );
 
    PFN_GETLIBRARYVER         m_pfnGetLibraryVer;
    PFN_GETDEVICENAMES        m_pfnGetDevNames;
@@ -70,7 +81,7 @@ protected:
 
 private:
 
-
+   std::string               m_LastErrorMsg;
 
 };
 
