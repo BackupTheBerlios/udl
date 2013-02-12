@@ -146,7 +146,7 @@ int main( int argc, char *argv[] ){
 
 		bool result = false;
 		std::string ErrMsg;
-		UDLMeasDevice* pUDLDev = Devices.GetDevice( Settings.MeasDev()[i].DevName() );
+		UDLMeasDevice* pUDLDev = Devices.GetMeasDevice( Settings.MeasDev()[i].DevName() );
 		if( pUDLDev ){
 		   result = pUDLDev->Setup( Settings.MeasDev()[i].Args() );
          if( result ){
@@ -227,7 +227,7 @@ void ListDeviceOptions( const std::string& DevName ){
    System::GetDevicesDir( strModulePath );
    Devices.LoadModules( strModulePath );
 
-   UDLMeasDevice* pDev = Devices.GetDevice( DevName );
+   UDLDevice* pDev = Devices.GetDevice( DevName );
 
    if( pDev ){
       std::vector<UDLDevice::DeviceOptions_t> opt;
@@ -261,7 +261,7 @@ const wchar_t* Help( void ){
 
 const wchar_t* Version( void ){
    return L"udl 0.0.3\n"\
-             "Copyright (C) 2012  Marco Hartung\n"\
+             "Copyright (C) 2013  Marco Hartung\n"\
              "This program comes with ABSOLUTELY NO WARRANTY; for details type 'udl --warranty'.\n"\
              "This is free software, and you are welcome to redistribute it\n"\
              "under certain conditions; type 'udl --redist' for details.";

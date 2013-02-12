@@ -73,25 +73,27 @@ void UDLDevices::GetDeviceNames( std::vector<std::string>& DevNames )
 }
 
 
-UDLMeasDevice* UDLDevices::GetDevice( const std::string& strName )
+UDLDevice* UDLDevices::GetDevice( const std::string& strName )
+{
+   std::map<std::string, UDLDevice*>::const_iterator it = m_strDevMap.find( strName );
+   UDLDevice* pUdlDev = 0;
+
+   if( it != m_strDevMap.end() ){
+
+      pUdlDev = it->second;
+
+   }
+   return pUdlDev;
+}
+
+
+UDLMeasDevice* UDLDevices::GetMeasDevice( const std::string& strName )
 {
    std::map<std::string, UDLDevice*>::const_iterator it = m_strDevMap.find( strName );
    UDLMeasDevice* pMd = 0;
 
    if( it != m_strDevMap.end() ){
-
       pMd = UDLMeasDevice::NewMeasDev( it->second, strName );
-
-      //pMd = new UDLMeasDevice( it->second, strName );
-     // UDLMeasDevice* pMd = new UDLMeasDevice();
-     /*
-      if( pMd ){
-       //  pMd->LoadDeviceLibrary( it->second->GetLib().GetLibraryName() );
-         std::string s;
-         StringTools::WStrToMbStr( strName, s );
-         pMd->Create( s );
-      }
-      */
    }
    return pMd;
 }

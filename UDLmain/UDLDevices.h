@@ -38,7 +38,9 @@ public:
 
    void GetDeviceNames( std::vector<std::string>& DevNames );
 
-   UDLMeasDevice* GetDevice( const std::string& strName );
+   UDLDevice* GetDevice( const std::string& strName );
+
+   UDLMeasDevice* GetMeasDevice( const std::string& strName );
 
 protected:
 
