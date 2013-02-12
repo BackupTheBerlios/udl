@@ -37,7 +37,8 @@
 #include "../UDLlib/UdlSystem.h"
 #include "../UDLlib/StringTools.h"
 
-#include "../UDLlib/getopt_pp/getopt_pp.h"
+//#include "../UDLlib/getopt_pp/getopt_pp.h"
+#include "../lib/getopt_pp/getopt_pp.h"
 using namespace GetOpt;
 
 
