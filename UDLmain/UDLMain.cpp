@@ -21,7 +21,6 @@
 #include "../config.h"
 
 #include <stdlib.h>
-#include <iostream>
 #include <string>
 #include <set>
 #include <sstream>
@@ -37,15 +36,14 @@
 #include "../UDLlib/UdlSystem.h"
 #include "../UDLlib/StringTools.h"
 
-//#include "../UDLlib/getopt_pp/getopt_pp.h"
 #include "../lib/getopt_pp/getopt_pp.h"
 using namespace GetOpt;
 
 
-const wchar_t* Help( void );
-const wchar_t* Version( void );
-const wchar_t* Redist( void );
-const wchar_t* Warranty( void );
+const char* Help( void );
+const char* Version( void );
+const char* Redist( void );
+const char* Warranty( void );
 
 void ListDevices( void );
 void ListDeviceOptions( const std::string& DevName );
@@ -63,19 +61,19 @@ int main( int argc, char *argv[] ){
 
    try{
       if( ops >> OptionPresent('h', "help" ) ){
-         std::wcout << Help() << std::endl;
+         UdlOut::Msg << Help() << std::endl;
          return EXIT_SUCCESS;
       }
       if(  ops >> OptionPresent('v', "version" ) ){
-         std::wcout << Version() << std::endl;
+         UdlOut::Msg << Version() << std::endl;
          return EXIT_SUCCESS;
       }
       if(  ops >> OptionPresent( 'w', "warranty" ) ){
-         std::wcout << Warranty() << std::endl;
+         UdlOut::Msg << Warranty() << std::endl;
          return EXIT_SUCCESS;
       }
       if(  ops >> OptionPresent( 'r', "redist" ) ){
-         std::wcout << Redist() << std::endl;
+         UdlOut::Msg << Redist() << std::endl;
          return EXIT_SUCCESS;
       }
       if( ops >> OptionPresent('d', "list-devices" ) ){
@@ -89,7 +87,6 @@ int main( int argc, char *argv[] ){
          return EXIT_SUCCESS;
       }
 
-
       // Verbosite 0=Quiet - 3=Verbose--
       ops >> Option( 'V', "Verbose", Verbose, 2 );
       if( UdlOut::SetVerbosity( Verbose ) != false ){
@@ -99,18 +96,23 @@ int main( int argc, char *argv[] ){
          UdlOut::Error << "Wrong Verbosity: " << Verbose << UdlOut::EndLine;
       }
 
-      ops >> Option('c', "config-file", strConfigFile );
+      std::vector<std::string> args;
+      ops >> GlobalOption(args);
+      if( args.size() >= 1 ){
+         strConfigFile = args[0];
+      }
 
    }
    catch(GetOpt::GetOptEx ex){
-          std::wcerr << L"Error in arguments" << std::endl;
-          return EXIT_FAILURE;
+      UdlOut::Error << "Error in arguments!" << UdlOut::EndLine;
+      UdlOut::Msg << Help() << UdlOut::EndLine;
+      return EXIT_FAILURE;
    }
 
 
    Settings.SetConfigFile( strConfigFile );
    if( Settings.ParseConfigFile() == false ){
-      UdlOut::Error << "Failed to parse: " << strConfigFile << UdlOut::EndLine;
+      UdlOut::Error << "Failed to read file: \"" << strConfigFile << "\"" << UdlOut::EndLine;
       return EXIT_FAILURE;
    }
    // Print verbose configuration info
@@ -214,9 +216,9 @@ void ListDevices( void ){
    std::vector<std::string> DevNames;
    Devices.GetDeviceNames( DevNames );
 
-   std::wcout << L"List of all available devices:" << std::endl;
+   UdlOut::Msg << "List of all available devices:" << std::endl;
    for( size_t i = 0; i < DevNames.size(); i++ ){
-      std::cout << DevNames[i] << std::endl;
+      UdlOut::Msg << DevNames[i] << std::endl;
    }
 
 }
@@ -237,41 +239,46 @@ void ListDeviceOptions( const std::string& DevName ){
       UdlOut::Msg << "Options of device \"" << DevName << "\":" << UdlOut::EndLine;
       std::vector<UDLDevice::DeviceOptions_t>::const_iterator it;
       for( it = opt.begin(); it !=  opt.end(); it++ ){
-         UdlOut::Msg << "Name         :" << it->Name << UdlOut::EndLine;
-         UdlOut::Msg << "Default value:" << it->DefaultValue << UdlOut::EndLine;
-         UdlOut::Msg << "Comment      :" << it->Comment << UdlOut::EndLine;
+         UdlOut::Msg << "Option name    :" << it->Name << UdlOut::EndLine;
+         UdlOut::Msg << "  Default value:" << it->DefaultValue << UdlOut::EndLine;
+         UdlOut::Msg << "  Comment      :" << it->Comment << UdlOut::EndLine;
          UdlOut::Msg << UdlOut::EndLine;
        }
    }
+   else{
+      UdlOut::Error << "Device \"" << DevName << "\" not found." << UdlOut::EndLine;
+   }
 }
 
-const wchar_t* Help( void ){
-   return L"usage: udl [Arguments]\n"\
+const char* Help( void ){
+   return "usage: udl [MeasurementFile] [Arguments]\n"\
             "\n"\
             "Arguments:\n"\
-            "   -h, --help              Print this help message\n"\
-            "   -v, --version           Display the version number and copyrights\n"\
-            "   -d, --list-devices      Print a list of all supported devices\n"\
-            "   -V, --Verbose           Set the verbosity\n"
-            "                              0 = Print nothing\n"
-            "                              1 = Print only errors\n"
-            "                              2 = Normal\n"
-            "                              3 = Verbose\n"
-            "   -c, --config-file       Specify the configuration file for the measurement\n";
+            "   -h, --help                     Print this help message\n"\
+            "   -v, --version                  Display the version number and copyrights\n"\
+            "   -d, --list-devices             Print a list of all supported devices\n"\
+            "   -o, --list-options <DevName>   Print a list of all available options of a device\n"\
+            "   -V, --Verbose                  Set the verbosity\n"
+            "                                     0 = Print nothing\n"
+            "                                     1 = Print only errors\n"
+            "                                     2 = Normal\n"
+            "                                     3 = Verbose\n";
 }
 
-const wchar_t* Version( void ){
-   return L"udl 0.0.3\n"\
+const char* Version( void ){
+   return "udl 0.0.3\n"\
              "Copyright (C) 2013  Marco Hartung\n"\
              "This program comes with ABSOLUTELY NO WARRANTY; for details type 'udl --warranty'.\n"\
              "This is free software, and you are welcome to redistribute it\n"\
              "under certain conditions; type 'udl --redist' for details.";
 }
-const wchar_t* Redist( void ){
-   return L"Redist Text is missing!!";
+
+const char* Redist( void ){
+   return "Redist Text is missing!!";
 }
-const wchar_t* Warranty( void ){
-   return L"THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.\n"\
+
+const char* Warranty( void ){
+   return "THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.\n"\
             "EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES\n"\
             "PROVIDE THE PROGRAM \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED,\n"\
             "INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.\n"\

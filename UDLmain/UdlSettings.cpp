@@ -35,7 +35,9 @@ UdlSettings::~UdlSettings()
 bool UdlSettings::ParseConfigFile( void ){
 
 	UdlSettingsFile sf;
-	sf.Parse( mConfigFile );
+	if( sf.Parse( mConfigFile ) == false ){
+	   return false;
+	}
 
 	sf.GetValueAsLong( "Measurement" , "SampleTime", m_SampleTimeMs );
 	sf.GetValueAsLong( "Measurement" , "SampleCount", m_SampleCount );
